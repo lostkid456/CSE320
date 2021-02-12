@@ -23,6 +23,9 @@ int main(int argc, char **argv)
     if(global_options & HELP_OPTION)
         USAGE(*argv, EXIT_SUCCESS);
     // TO BE IMPLEMENTED
+    if(global_options & 0x31){
+        pgm_to_ascii(stdin,stdout);
+    }
     return EXIT_FAILURE;
 }
 

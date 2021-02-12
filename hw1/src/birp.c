@@ -25,7 +25,29 @@ int birp_to_birp(FILE *in, FILE *out) {
 
 int pgm_to_ascii(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
-    return -1;
+    int wp=0,hp=0;
+    if(img_read_pgm(in,&wp,&hp,raster_data,RASTER_SIZE_MAX)==0){
+        int counter=0;
+        for(int i=0;i<wp;i++){
+            printf("\n");
+            for(int j=0;j<hp;j++){
+                if(raster_data[counter]>=0 && raster_data[counter]<=63){
+                    printf(" ");
+                }
+                else if(raster_data[counter]>=64 && raster_data[counter]<=127){
+                    printf(".");
+                }else if(raster_data[counter]>=128 && raster_data[counter]<=191){
+                    printf("*");
+                }else if(raster_data[counter]>=192 && raster_data[counter]<=255){
+                    printf("@");
+                }else{
+                    return -1;
+                }
+                counter++;
+            }
+        }
+    }
+    return 0;
 }
 
 int birp_to_ascii(FILE *in, FILE *out) {
