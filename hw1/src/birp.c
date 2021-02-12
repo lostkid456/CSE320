@@ -27,23 +27,23 @@ int pgm_to_ascii(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
     if(img_read_pgm(in,&wp,&hp,raster_data,RASTER_SIZE_MAX)==0){
-        int counter=0;
+        unsigned char *arr_p=raster_data;
         for(int i=0;i<wp;i++){
             printf("\n");
             for(int j=0;j<hp;j++){
-                if(raster_data[counter]>=0 && raster_data[counter]<=63){
+                if(*arr_p>=0 && *arr_p<=63){
                     printf(" ");
                 }
-                else if(raster_data[counter]>=64 && raster_data[counter]<=127){
+                else if(*arr_p>=64 && *arr_p<=127){
                     printf(".");
-                }else if(raster_data[counter]>=128 && raster_data[counter]<=191){
+                }else if(*arr_p>=128 && *arr_p<=191){
                     printf("*");
-                }else if(raster_data[counter]>=192 && raster_data[counter]<=255){
+                }else if(*arr_p>=192 && *arr_p<=255){
                     printf("@");
                 }else{
                     return -1;
                 }
-                counter++;
+                arr_p++;
             }
         }
     }
