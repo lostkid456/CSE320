@@ -28,8 +28,10 @@ int pgm_to_ascii(FILE *in, FILE *out) {
     int wp=0,hp=0;
     if(img_read_pgm(in,&wp,&hp,raster_data,RASTER_SIZE_MAX)==0){
         unsigned char *arr_p=raster_data;
-        for(int i=0;i<wp;i++){
-            printf("\n");
+        for(int i=0;i<=wp;i++){
+            if(i!=0){
+                printf("\n");
+            }
             for(int j=0;j<hp;j++){
                 if(*arr_p>=0 && *arr_p<=63){
                     printf(" ");
