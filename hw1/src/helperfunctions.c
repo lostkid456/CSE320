@@ -60,14 +60,16 @@ int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr
     if(recursion_counter==min_levels){
         if(curr_x>h || curr_y>w){
             return 0;
+        }else{
+            return *raster;
         }
     }
     if(recursion_counter%2==0){ //Split horizontally
         recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,min_levels,recursion_counter++); 
-        recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,min_levels,recursion_counter++); 
+        recursive_from_raster(raster+((curr_x + h/2) * w + curr_y),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,min_levels,recursion_counter++); 
     }else{ //Split vertically
         recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,min_levels,recursion_counter++); 
-        recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),min_levels,recursion_counter++);
+        recursive_from_raster(raster+(curr_x * w/2 + curr_y + w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),min_levels,recursion_counter++);
     }
     return 0;
 }

@@ -93,6 +93,7 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
     int max_d_value= determine_powerof2(w)>determine_powerof2(h) ? determine_powerof2(w):determine_powerof2(h);
     int smallest_square_dimension = 1 << max_d_value;
     int min_level=bdd_min_level(w,h);
+    //BDD_NODE node={};
     return NULL;
 }
 
