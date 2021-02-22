@@ -39,6 +39,7 @@ int bdd_min_level(int w, int h){
  */
 int bdd_lookup(int level, int left, int right) {
     // TO BE IMPLEMENTED
+    printf("Level %i Left %i Right %i\n",level,left,right);
     if(level>BDD_LEVELS_MAX || level<0){
         return -1;
     }else{
@@ -50,31 +51,28 @@ int bdd_lookup(int level, int left, int right) {
             int hash_value=simple_hash_function(level,left,right,BDD_NODES_MAX);
             bdd_hashtable_pointer+=hash_value;
             int counter=0;
-            while(bdd_hashtable_pointer!=NULL){
+            while(*bdd_hashtable_pointer!=NULL){
                 if(hash_value+counter>=BDD_NODES_MAX){
                     bdd_hashtable_pointer=bdd_hash_map;
                 }
-                BDD_NODE node=**bdd_hashtable_pointer;
-                if(node.level==level && node.left==left && node.right==right){
+                if((*bdd_hashtable_pointer)->level == level && (*bdd_hashtable_pointer)->left==left && (*bdd_hashtable_pointer)-> right==right){
                     return *bdd_hashtable_pointer-bdd_nodes;
                 }else{
                     bdd_hashtable_pointer+=1;
                     counter+=1;
                 }
             }
-            BDD_NODE new_node;
-            new_node.level=level;
-            new_node.left=left;
-            new_node.right=right;
+            BDD_NODE new_node={level,left,right};
             BDD_NODE *table_pointer=bdd_nodes;
             table_pointer+=index_counter+256;
             *table_pointer=new_node;
-            **bdd_hashtable_pointer=new_node;
+            *bdd_hashtable_pointer=table_pointer;
             index_counter+=1;
+            printf("New Node Created Index %li Level %i Left %i Right %i\n\n",table_pointer-bdd_nodes,level,left,right);
             return table_pointer-bdd_nodes;
         }
     } 
-    return 0;
+    return -1;
 }
 
 BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
@@ -83,7 +81,7 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
         return NULL;
     }
     if(initialize_counter==0){
-        BDD_NODE **hashmap_pointer=bdd_hash_map;
+        BDD_NODE *hashmap_pointer=*bdd_hash_map;
         for(int i=0;i<BDD_NODES_MAX;i++){
             hashmap_pointer=NULL;
             hashmap_pointer++;
@@ -91,10 +89,16 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
         initialize_counter++;
     }
     int max_d_value= determine_powerof2(w)>determine_powerof2(h) ? determine_powerof2(w):determine_powerof2(h);
-    int smallest_square_dimension = 1 << max_d_value;
+    int smallest_w_dimension= 1 << max_d_value;
+    int smallest_h_dimension=1<<max_d_value;
+    int w_dimension= 1<<max_d_value;
     int min_level=bdd_min_level(w,h);
-    //BDD_NODE node={};
-    return NULL;
+    int x=0;
+    int y=0;
+    int counter=0;
+    recursive_from_raster(raster,h,w,smallest_h_dimension,smallest_w_dimension,x,y,w_dimension,min_level,counter);
+    BDD_NODE *node=bdd_nodes+BDD_NUM_LEAVES+index_counter-1;
+    return node;
 }
 
 void bdd_to_raster(BDD_NODE *node, int w, int h, unsigned char *raster) {
@@ -103,7 +107,14 @@ void bdd_to_raster(BDD_NODE *node, int w, int h, unsigned char *raster) {
 
 int bdd_serialize(BDD_NODE *node, FILE *out) {
     // TO BE IMPLEMENTED
-    return -1;
+    if(node==NULL){
+        return -1;
+    }
+    bdd_serialize(LEFT(node,(*node).level),out);
+    bdd_serialize(RIGHT(node,(*node).right),out);
+    int serial = bdd_lookup((*node).level,(*node).left,(*node).right);
+    printf("%c %i",(*node).level+16,serial);
+    return 0;
 }
 
 BDD_NODE *bdd_deserialize(FILE *in) {

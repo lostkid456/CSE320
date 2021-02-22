@@ -18,6 +18,6 @@ int simple_hash_function(int a, int b, int c, int d);
 
 int determine_powerof2(int a);
 
-int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int min_levels,int recursion_counter);
+int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int max_w,int min_levels,int recursion_counter);
 
 #endif

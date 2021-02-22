@@ -55,7 +55,7 @@ int determine_powerof2(int a){
     return counter;
 }
 
-int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int min_levels,int recursion_counter){
+int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int max_w,int min_levels,int recursion_counter){
     //Stopping condition
     if(recursion_counter==min_levels){
         if(curr_x>h || curr_y>w){
@@ -65,13 +65,14 @@ int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr
         }
     }
     if(recursion_counter%2==0){ //Split horizontally
-        recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,min_levels,recursion_counter++); 
-        recursive_from_raster(raster+((curr_x + h/2) * w + curr_y),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,min_levels,recursion_counter++); 
+    recursion_counter+=1;
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,max_w,min_levels,recursion_counter),
+        recursive_from_raster(raster+(max_w*curr_h/2),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,max_w,min_levels,recursion_counter)); 
     }else{ //Split vertically
-        recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,min_levels,recursion_counter++); 
-        recursive_from_raster(raster+(curr_x * w/2 + curr_y + w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),min_levels,recursion_counter++);
+    recursion_counter+=1;
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,max_w,min_levels,recursion_counter),
+        recursive_from_raster(raster+(curr_w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),max_w,min_levels,recursion_counter));
     }
-    return 0;
 }
 
 

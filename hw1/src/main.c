@@ -23,8 +23,18 @@ int main(int argc, char **argv)
     if(global_options & HELP_OPTION)
         USAGE(*argv, EXIT_SUCCESS);
     // TO BE IMPLEMENTED
-    if(global_options & 0x31){
+    if(global_options == 0x31){
         pgm_to_ascii(stdin,stdout);
+    }
+    if(global_options == 0x21){
+        // unsigned char input1[] = {4, 8 ,4, 8};
+        // bdd_from_raster(2,2,input1);
+        // unsigned char input2[] = {4,2,12,255};
+        // bdd_from_raster(2,2,input2);
+        // unsigned char input3[] = {4,2, 36, 49};
+        // bdd_from_raster(2,2,input3);
+        // unsigned char input4[] = {4,2, 4,8};
+        // bdd_from_raster(2,2,input4);
     }
     return EXIT_FAILURE;
 }
