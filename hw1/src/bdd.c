@@ -39,7 +39,7 @@ int bdd_min_level(int w, int h){
  */
 int bdd_lookup(int level, int left, int right) {
     // TO BE IMPLEMENTED
-    printf("Level %i Left %i Right %i\n",level,left,right);
+    //printf("Level %i Left %i Right %i\n",level,left,right);
     if(level>BDD_LEVELS_MAX || level<0){
         return -1;
     }else{
@@ -68,7 +68,7 @@ int bdd_lookup(int level, int left, int right) {
             *table_pointer=new_node;
             *bdd_hashtable_pointer=table_pointer;
             index_counter+=1;
-            printf("New Node Created Index %li Level %i Left %i Right %i\n\n",table_pointer-bdd_nodes,level,left,right);
+            //printf("New Node Created Index %li Level %i Left %i Right %i\n\n",table_pointer-bdd_nodes,level,left,right);
             return table_pointer-bdd_nodes;
         }
     } 
@@ -103,6 +103,15 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
 
 void bdd_to_raster(BDD_NODE *node, int w, int h, unsigned char *raster) {
     // TO BE IMPLEMENTED
+    int max_d_value=determine_powerof2(w)>determine_powerof2(h) ? determine_powerof2(w):determine_powerof2(h);
+    int max_h=1<<max_d_value;
+    int max_w=1<<max_d_value;
+    for(int i=0;i<max_h;i++){
+        for(int j=0;j<max_w;j++){
+            //Need to set raster[i,j] to the bdd_apply value 
+            bdd_apply(node,i,j);
+        }
+    }
 }
 
 int bdd_serialize(BDD_NODE *node, FILE *out) {
@@ -110,10 +119,8 @@ int bdd_serialize(BDD_NODE *node, FILE *out) {
     if(node==NULL){
         return -1;
     }
-    bdd_serialize(LEFT(node,(*node).level),out);
-    bdd_serialize(RIGHT(node,(*node).right),out);
-    int serial = bdd_lookup((*node).level,(*node).left,(*node).right);
-    printf("%c %i",(*node).level+16,serial);
+    int serial=1;
+    post_order(&serial,node,out);
     return 0;
 }
 
@@ -124,6 +131,10 @@ BDD_NODE *bdd_deserialize(FILE *in) {
 
 unsigned char bdd_apply(BDD_NODE *node, int r, int c) {
     // TO BE IMPLEMENTED
+    //Work on this
+    for(int i=0;i<r;i++){
+        int level=(*node).level;
+    }
     return 0;
 }
 

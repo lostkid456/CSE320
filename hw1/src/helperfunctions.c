@@ -4,10 +4,12 @@
 #include "helperfunctions.h"
 #include "bdd.h"
 
+#define LEFT(np, l) ((l) > (np)->level ? (np) : bdd_nodes + (np)->left)
+#define RIGHT(np, l) ((l) > (np)->level ? (np) : bdd_nodes + (np)->right)
+
 int index_counter=0;
 
 int initalize_counter=0;
-
 
 int str_compare(char *str1,char *str2){
     while(*str1!='\0' && *str2!='\0'){
@@ -65,13 +67,47 @@ int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr
         }
     }
     if(recursion_counter%2==0){ //Split horizontally
-    recursion_counter+=1;
-        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,max_w,min_levels,recursion_counter),
-        recursive_from_raster(raster+(max_w*curr_h/2),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,max_w,min_levels,recursion_counter)); 
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,max_w,min_levels,recursion_counter+1),
+        recursive_from_raster(raster+(max_w*curr_h/2),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,max_w,min_levels,recursion_counter+1)); 
     }else{ //Split vertically
-    recursion_counter+=1;
-        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,max_w,min_levels,recursion_counter),
-        recursive_from_raster(raster+(curr_w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),max_w,min_levels,recursion_counter));
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,max_w,min_levels,recursion_counter+1),
+        recursive_from_raster(raster+(curr_w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),max_w,min_levels,recursion_counter+1));
+    }
+}
+
+void find_serial(int value,FILE *out){
+    int counter=0;
+    while(counter<4){
+        fputc(value,out);
+        value=value>>8;
+        counter+=1;
+    }
+}
+
+void post_order(int *serial,BDD_NODE *node,FILE* out){
+    if((*node).level==0){
+        if(*(bdd_index_map+(node-bdd_nodes))!=0){
+            return;
+        }else{
+            fputc('@',out);
+            fputc(node-bdd_nodes,out);
+            *(bdd_index_map+(node-bdd_nodes))=*serial;
+            *serial+=1;
+            return;
+        }
+    }
+    post_order(serial,LEFT(node,(*node).level),out);
+    post_order(serial,RIGHT(node,(*node).level),out);
+    if(*(bdd_index_map+(node-bdd_nodes))!=0){
+        return;
+    }else{
+        *(bdd_index_map+(node-bdd_nodes))=*serial;
+        (*serial)+=1;
+        fputc((*node).level+64,out);
+        int left_serial=*(bdd_index_map+(*node).left);
+        int right_serial=*(bdd_index_map+(*node).right);
+        find_serial(left_serial,out);
+        find_serial(right_serial,out);
     }
 }
 
