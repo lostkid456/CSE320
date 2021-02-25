@@ -9,8 +9,6 @@
 
 int index_counter=0;
 
-int initalize_counter=0;
-
 int str_compare(char *str1,char *str2){
     while(*str1!='\0' && *str2!='\0'){
         if(*str1 != *str2){
@@ -85,7 +83,7 @@ void find_serial(int value,FILE *out){
 }
 
 void post_order(int *serial,BDD_NODE *node,FILE* out){
-    if((*node).level==0){
+    if((*node).level==0 || (*node).left==(*node).right){
         if(*(bdd_index_map+(node-bdd_nodes))!=0){
             return;
         }else{
@@ -103,7 +101,7 @@ void post_order(int *serial,BDD_NODE *node,FILE* out){
     }else{
         *(bdd_index_map+(node-bdd_nodes))=*serial;
         (*serial)+=1;
-        fputc((*node).level+64,out);
+        fputc((*node).level+'@',out);
         int left_serial=*(bdd_index_map+(*node).left);
         int right_serial=*(bdd_index_map+(*node).right);
         find_serial(left_serial,out);

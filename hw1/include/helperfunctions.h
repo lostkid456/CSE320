@@ -7,10 +7,6 @@
 
 int index_counter;
 
-int initialize_counter;
-
-int serial_counter;
-
 int str_compare(char *str1,char *str2);
 
 int str_len(char *str);

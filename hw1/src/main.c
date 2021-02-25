@@ -25,9 +25,11 @@ int main(int argc, char **argv)
     // TO BE IMPLEMENTED
     if(global_options == 0x31){
         pgm_to_ascii(stdin,stdout);
+        return 0;
     }
     if(global_options == 0x21){
        pgm_to_birp(stdin,stdout);
+       return 0;
     }
     return EXIT_FAILURE;
 }

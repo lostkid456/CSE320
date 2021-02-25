@@ -50,16 +50,16 @@ int bdd_lookup(int level, int left, int right) {
             BDD_NODE **bdd_hashtable_pointer=bdd_hash_map; 
             int hash_value=simple_hash_function(level,left,right,BDD_NODES_MAX);
             bdd_hashtable_pointer+=hash_value;
-            int counter=0;
+            int count=0;
             while(*bdd_hashtable_pointer!=NULL){
-                if(hash_value+counter>=BDD_NODES_MAX){
+                if(hash_value+count>=BDD_NODES_MAX){
                     bdd_hashtable_pointer=bdd_hash_map;
                 }
                 if((*bdd_hashtable_pointer)->level == level && (*bdd_hashtable_pointer)->left==left && (*bdd_hashtable_pointer)-> right==right){
                     return *bdd_hashtable_pointer-bdd_nodes;
                 }else{
                     bdd_hashtable_pointer+=1;
-                    counter+=1;
+                    count+=1;
                 }
             }
             BDD_NODE new_node={level,left,right};
@@ -80,6 +80,7 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
     if(w<0 || w>8192 || h<0 || h>8192){
         return NULL;
     }
+    int initialize_counter=0;
     if(initialize_counter==0){
         BDD_NODE *hashmap_pointer=*bdd_hash_map;
         for(int i=0;i<BDD_NODES_MAX;i++){
@@ -126,6 +127,17 @@ int bdd_serialize(BDD_NODE *node, FILE *out) {
 
 BDD_NODE *bdd_deserialize(FILE *in) {
     // TO BE IMPLEMENTED
+    int c=fgetc(in);
+    while(c!=EOF){
+        if(c=='@'){
+            int val=fgetc(in);
+            bdd_lookup(0,val,val);
+        }
+        if(c>64 && c<97){
+            
+        }
+        c=fgetc(in);
+    }
     return NULL;
 }
 

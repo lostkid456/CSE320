@@ -14,26 +14,30 @@ int pgm_to_birp(FILE *in, FILE *out) {
     if(img_read_pgm(in,&wp,&hp,raster_data,RASTER_SIZE_MAX)==0){
         BDD_NODE *node=bdd_from_raster(wp,hp,raster_data);
         img_write_birp(node,wp,hp,stdout);
+        return 0;
+    }else{
+        return -1;
     }
-    return -1;
+    return 0;
 }
 
 int birp_to_pgm(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
-    if(img_read_birp(in,&wp,&hp)==0){
-
+    if(img_read_birp(in,&wp,&hp)!=NULL){
+        bdd_to_raster(img_read_birp(in,&wp,&hp),wp,hp,raster_data);
+        img_write_pgm(raster_data,wp,hp,out);
+        return 0;
+    }else{
+        return -1;
     }
-    return -1;
 }
 
 int birp_to_birp(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
-    if(img_read_birp(in,&wp,&hp)==0){
-
-    }
-    return -1;
+    
+    return 0;
 }
 
 int pgm_to_ascii(FILE *in, FILE *out) {
@@ -68,10 +72,8 @@ int pgm_to_ascii(FILE *in, FILE *out) {
 int birp_to_ascii(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
-    if(img_read_birp(in,&wp,&hp)==0){
-
-    }
-    return -1;
+    
+    return 0;
 }
 
 /**
