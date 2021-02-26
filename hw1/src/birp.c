@@ -18,19 +18,15 @@ int pgm_to_birp(FILE *in, FILE *out) {
     }else{
         return -1;
     }
-    return 0;
 }
 
 int birp_to_pgm(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
-    if(img_read_birp(in,&wp,&hp)!=NULL){
-        bdd_to_raster(img_read_birp(in,&wp,&hp),wp,hp,raster_data);
-        img_write_pgm(raster_data,wp,hp,out);
-        return 0;
-    }else{
-        return -1;
-    }
+    BDD_NODE *node=img_read_birp(in,&wp,&hp);
+    bdd_to_raster(node,wp,hp,raster_data);
+    img_write_pgm(raster_data,wp,hp,out);
+    return 0;
 }
 
 int birp_to_birp(FILE *in, FILE *out) {
@@ -45,11 +41,9 @@ int pgm_to_ascii(FILE *in, FILE *out) {
     int wp=0,hp=0;
     if(img_read_pgm(in,&wp,&hp,raster_data,RASTER_SIZE_MAX)==0){
         unsigned char *arr_p=raster_data;
-        for(int i=0;i<=wp;i++){
-            if(i!=0){
-                printf("\n");
-            }
-            for(int j=0;j<hp;j++){
+        for(int i=0;i<hp;i++){
+            for(int j=0;j<wp;j++){
+               // printf("%i %i %i\n",i,j,*arr_p);
                 if(*arr_p>=0 && *arr_p<=63){
                     printf(" ");
                 }
@@ -64,16 +58,42 @@ int pgm_to_ascii(FILE *in, FILE *out) {
                 }
                 arr_p++;
             }
+            printf("\n");
         }
+        printf("\n");
+        return 0;
+    }else{
+        return -1;
     }
-    return 0;
 }
 
 int birp_to_ascii(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
-    
-    return 0;
+    BDD_NODE *node=img_read_birp(in,&wp,&hp);
+    bdd_to_raster(node,wp,hp,raster_data);
+    unsigned char *arr_p=raster_data;
+        for(int i=0;i<hp;i++){
+            for(int j=0;j<wp;j++){
+                //printf("%i %i %i\n",i,j,*arr_p);
+                if(*arr_p>=0 && *arr_p<=63){
+                    printf(" ");
+                }
+                else if(*arr_p>=64 && *arr_p<=127){
+                    printf(".");
+                }else if(*arr_p>=128 && *arr_p<=191){
+                    printf("*");
+                }else if(*arr_p>=192 && *arr_p<=255){
+                    printf("@");
+                }else{
+                    return -1;
+                }
+                arr_p++;
+            }
+            printf("\n");
+        }
+        printf("\n");
+        return 0;
 }
 
 /**
@@ -95,6 +115,12 @@ int validargs(int argc, char **argv) {
     // TO BE IMPLEMENTED
     global_options=0x00;
     argv++;
+    if(argc==0){
+        return -1;
+    }
+    if(argc==1){
+        global_options=global_options|0x22;
+    }
     if (argc>=2){
         int leading_flag_counter=0;
         int optional_flag_counter=0; 
@@ -136,9 +162,6 @@ int validargs(int argc, char **argv) {
                     }
                     input_counter+=1;
                     leading_flag_counter+=1;
-                    if(output_counter==0){
-                        global_options=global_options|0x20;                        
-                    }
                 }else{
                     global_options=0x00;
                     return -1;

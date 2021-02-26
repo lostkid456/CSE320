@@ -97,8 +97,8 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
     int x=0;
     int y=0;
     int counter=0;
-    recursive_from_raster(raster,h,w,smallest_h_dimension,smallest_w_dimension,x,y,w_dimension,min_level,counter);
-    BDD_NODE *node=bdd_nodes+BDD_NUM_LEAVES+index_counter-1;
+    int root=recursive_from_raster(raster,h,w,smallest_h_dimension,smallest_w_dimension,x,y,w_dimension,min_level,counter);
+    BDD_NODE *node=bdd_nodes+root;
     return node;
 }
 
@@ -109,8 +109,8 @@ void bdd_to_raster(BDD_NODE *node, int w, int h, unsigned char *raster) {
     int max_w=1<<max_d_value;
     for(int i=0;i<max_h;i++){
         for(int j=0;j<max_w;j++){
-            //Need to set raster[i,j] to the bdd_apply value 
-            bdd_apply(node,i,j);
+            *(raster+(i*w+j))=bdd_apply(node,i,j);
+            //printf("bdd_to_raster %i i %i j %i\n",bdd_apply(node,i,j),i,j);
         }
     }
 }
@@ -126,28 +126,101 @@ int bdd_serialize(BDD_NODE *node, FILE *out) {
 }
 
 BDD_NODE *bdd_deserialize(FILE *in) {
-    // TO BE IMPLEMENTED
+    //TO BE IMPLEMENTED
     int c=fgetc(in);
+    int *node_arr=bdd_index_map+1;
+    int counter=0;
     while(c!=EOF){
-        if(c=='@'){
-            int val=fgetc(in);
-            bdd_lookup(0,val,val);
-        }
-        if(c>64 && c<97){
-            
-        }
-        c=fgetc(in);
+       if(c=='@'){
+           c=fgetc(in);
+           if(c<0 || c>255){
+               return NULL;
+           }else{
+               *(node_arr+counter)=c;
+               //printf("%i %i\n",64,*(node_arr+counter));
+               counter+=1;
+           }
+       }else if(c>64 && c<96){
+           int left_serial=0;
+           for(int i=0;i<4;i++){
+               int bit=fgetc(in);
+               if(i==0){
+                   left_serial+=bit;
+               }
+               if(i==1){
+                   left_serial+=bit*(256);
+               }
+               if(i==2){
+                   left_serial+=bit*(256*256);
+               }
+               if(i==3){
+                   left_serial+=bit*(256*256*256);
+               }
+           }
+           //printf("%i %i\n",c,left_serial);
+           int right_serial=0;
+           for(int i=0;i<4;i++){
+               int bit=fgetc(in);
+               if(i==0){
+                   right_serial+=bit;
+               }
+               if(i==1){
+                   right_serial+=bit*(256);
+               }
+               if(i==2){
+                   right_serial+=bit*(256*256);
+               }
+               if(i==3){
+                   right_serial+=bit*(256*256*256);
+               }
+           }
+           //printf("%i %i %i\n",c,left_serial,right_serial);
+           int index=bdd_lookup(c-64,*(node_arr+left_serial-1),*(node_arr+right_serial-1));
+           *(node_arr+counter)=index;
+           counter+=1;
+       }else{
+           return NULL;
+       }
+       c=fgetc(in);
     }
-    return NULL;
+    //Returns the node with greatest serial number
+    return bdd_nodes+*(node_arr+counter-1);
 }
 
 unsigned char bdd_apply(BDD_NODE *node, int r, int c) {
     // TO BE IMPLEMENTED
-    //Work on this
-    for(int i=0;i<r;i++){
-        int level=(*node).level;
+    int apply_counter=0;
+    int c_value=1;
+    while(c_value>0){
+        int level=(node->level);
+        int bit_to_look;
+        if(level==0){
+            //printf("%i %i %li\n",r,c,node-bdd_nodes);
+            return node-bdd_nodes;
+        }
+        if(level%2==0){
+            bit_to_look=(level-2)/2;
+            int mask=1<<bit_to_look;
+            if((mask&r)>>bit_to_look){
+                node=RIGHT(node,(*node).level);
+            }else{
+                node=LEFT(node,(*node).level);
+            }
+        }else{
+            bit_to_look=(level-1)/2;
+            if(bit_to_look==0){
+                c_value=0;
+            }
+            int mask=1<<bit_to_look;
+            if((mask&c)>>bit_to_look){
+                node=RIGHT(node,(*node).level);
+            }else{
+                node=LEFT(node,(*node).level);
+            }
+        }
     }
-    return 0;
+    //printf("%i %i %li\n",r,c,node-bdd_nodes);
+    return node-bdd_nodes;
 }
 
 BDD_NODE *bdd_map(BDD_NODE *node, unsigned char (*func)(unsigned char)) {
@@ -157,6 +230,7 @@ BDD_NODE *bdd_map(BDD_NODE *node, unsigned char (*func)(unsigned char)) {
 
 BDD_NODE *bdd_rotate(BDD_NODE *node, int level) {
     // TO BE IMPLEMENTED
+
     return NULL;
 }
 

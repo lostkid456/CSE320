@@ -31,6 +31,14 @@ int main(int argc, char **argv)
        pgm_to_birp(stdin,stdout);
        return 0;
     }
+    if(global_options == 0x12){
+        birp_to_pgm(stdin,stdout);
+        return 0;
+    }
+    if(global_options == 0x32){
+        birp_to_ascii(stdin,stdout);
+        return 0;
+    }
     return EXIT_FAILURE;
 }
 
