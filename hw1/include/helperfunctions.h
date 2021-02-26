@@ -23,4 +23,16 @@ void find_serial(int value,FILE *out);
 
 void post_order(int *serial,BDD_NODE *node,FILE* out);
 
+int rotate_helper(BDD_NODE *node,int level);
+
+int map_helper(BDD_NODE *node,unsigned char (*func)(unsigned char));
+
+int zoom_in_helper();
+
+int zoom_out_helper();
+
+int negate();
+
+int threshold(int threshold);
+
 #endif

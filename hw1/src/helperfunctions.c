@@ -113,4 +113,41 @@ void post_order(int *serial,BDD_NODE *node,FILE* out){
     }
 }
 
+int rotate_helper(BDD_NODE *node,int level){
+    if(level==0){
+        return node-bdd_nodes;
+    }
+    BDD_NODE *left_node=LEFT(node,(*node).level);
+    BDD_NODE *right_node=RIGHT(node,(*node).right);
+    int a=rotate_helper(LEFT(left_node,(*left_node).level),level-1);
+    int b=rotate_helper(RIGHT(left_node,(*left_node).level),level-1);
+    int c=rotate_helper(LEFT(right_node,(*left_node).level),level-1);
+    int d=rotate_helper(RIGHT(right_node,(*left_node).level),level-1);
+    int left_half=bdd_lookup(2*level-1,b,d);
+    int right_half=bdd_lookup(2*level-1,a,c);
+    return bdd_lookup(2*level,left_half,right_half);
+}
+
+int map_helper(BDD_NODE *node,unsigned char (*func)(unsigned char)){
+    if((*node).level==0){
+        return func(node-bdd_nodes);
+    }
+    return bdd_lookup((*node).level,map_helper(LEFT(node,(*node).level),(*func)),map_helper(RIGHT(node,(*node).level),(*func)));
+}
+
+int zoom_in_helper(){
+
+}
+
+int zoom_out_helper(){
+
+}
+
+int negate(){
+    
+}
+
+int threshold(int threshold){}
+
+
 

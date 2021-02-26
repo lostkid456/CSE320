@@ -32,6 +32,12 @@ int birp_to_pgm(FILE *in, FILE *out) {
 int birp_to_birp(FILE *in, FILE *out) {
     // TO BE IMPLEMENTED
     int wp=0,hp=0;
+    BDD_NODE *node=img_read_birp(in,&wp,&hp);
+    int *index_map_pointer=bdd_index_map;
+    for(int i=0;i<BDD_NODES_MAX;i++){
+        *(index_map_pointer)=0;
+        index_map_pointer++;
+    }
     
     return 0;
 }

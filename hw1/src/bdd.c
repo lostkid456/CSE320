@@ -224,16 +224,27 @@ unsigned char bdd_apply(BDD_NODE *node, int r, int c) {
 
 BDD_NODE *bdd_map(BDD_NODE *node, unsigned char (*func)(unsigned char)) {
     // TO BE IMPLEMENTED
-    return NULL;
+    if(str_compare(*func,"negate")){
+        int index=map_helper(node,(*func)(negate));
+        return index+bdd_nodes;
+    }else{
+        int index=map_helper(node,(*func)(threshold));
+    }
 }
 
 BDD_NODE *bdd_rotate(BDD_NODE *node, int level) {
     // TO BE IMPLEMENTED
-    
-    return NULL;
+    int index=rotate_helper(node,level/2);
+    return bdd_nodes+index;
 }
 
 BDD_NODE *bdd_zoom(BDD_NODE *node, int level, int factor) {
     // TO BE IMPLEMENTED
-    return NULL;
+    if(factor>0 && factor<=16){
+
+    }else if(factor>=240 && factor<=256){
+
+    }else{
+        return node;
+    }
 }

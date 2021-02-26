@@ -41,6 +41,10 @@ int main(int argc, char **argv)
         birp_to_ascii(stdin,stdout);
         return 0;
     }
+    if(global_options & 0xff == 0x22){
+        birp_to_birp(stdin,stdout);
+        return 0;
+    }
     return EXIT_FAILURE;
 }
 
