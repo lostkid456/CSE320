@@ -92,12 +92,11 @@ BDD_NODE *bdd_from_raster(int w, int h, unsigned char *raster) {
     int max_d_value= determine_powerof2(w)>determine_powerof2(h) ? determine_powerof2(w):determine_powerof2(h);
     int smallest_w_dimension= 1 << max_d_value;
     int smallest_h_dimension=1<<max_d_value;
-    int w_dimension= 1<<max_d_value;
     int min_level=bdd_min_level(w,h);
     int x=0;
     int y=0;
     int counter=0;
-    int root=recursive_from_raster(raster,h,w,smallest_h_dimension,smallest_w_dimension,x,y,w_dimension,min_level,counter);
+    int root=recursive_from_raster(raster,h,w,smallest_h_dimension,smallest_w_dimension,x,y,min_level,counter);
     BDD_NODE *node=bdd_nodes+root;
     return node;
 }
@@ -230,7 +229,7 @@ BDD_NODE *bdd_map(BDD_NODE *node, unsigned char (*func)(unsigned char)) {
 
 BDD_NODE *bdd_rotate(BDD_NODE *node, int level) {
     // TO BE IMPLEMENTED
-
+    
     return NULL;
 }
 

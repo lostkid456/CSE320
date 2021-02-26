@@ -28,6 +28,8 @@ int main(int argc, char **argv)
         return 0;
     }
     if(global_options == 0x21){
+    //    unsigned char input2[] = {1,2,3,4,5,6,7,8,9};
+    //    bdd_from_raster(3, 3, input2);
        pgm_to_birp(stdin,stdout);
        return 0;
     }

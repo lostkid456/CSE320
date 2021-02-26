@@ -55,21 +55,23 @@ int determine_powerof2(int a){
     return counter;
 }
 
-int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int max_w,int min_levels,int recursion_counter){
+int recursive_from_raster(unsigned char *raster,int h, int w,int curr_h,int curr_w,int curr_x,int curr_y,int min_levels,int recursion_counter){
     //Stopping condition
     if(recursion_counter==min_levels){
-        if(curr_x>h || curr_y>w){
+        if(curr_x>(h-1) || curr_y>(w-1)){
+            //printf("OUT OF BOUNDS %i %i %i\n",curr_x,curr_y,0);
             return 0;
         }else{
+            //printf("IN BOUNDS %i %i %i\n",curr_x,curr_y,*raster);
             return *raster;
         }
     }
     if(recursion_counter%2==0){ //Split horizontally
-        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,max_w,min_levels,recursion_counter+1),
-        recursive_from_raster(raster+(max_w*curr_h/2),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,max_w,min_levels,recursion_counter+1)); 
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h/2,curr_w,curr_x,curr_y,min_levels,recursion_counter+1),
+        recursive_from_raster(raster+(w*curr_h/2),h,w,curr_h/2,curr_w,curr_x+(curr_h/2),curr_y,min_levels,recursion_counter+1)); 
     }else{ //Split vertically
-        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,max_w,min_levels,recursion_counter+1),
-        recursive_from_raster(raster+(curr_w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),max_w,min_levels,recursion_counter+1));
+        return bdd_lookup(min_levels-recursion_counter,recursive_from_raster(raster,h,w,curr_h,curr_w/2,curr_x,curr_y,min_levels,recursion_counter+1),
+        recursive_from_raster(raster+(curr_w/2),h,w,curr_h,curr_w/2,curr_x,curr_y+(curr_w/2),min_levels,recursion_counter+1));
     }
 }
 
@@ -77,6 +79,7 @@ void find_serial(int value,FILE *out){
     int counter=0;
     while(counter<4){
         fputc(value,out);
+        //printf(" %i\n",value);
         value=value>>8;
         counter+=1;
     }
@@ -89,6 +92,7 @@ void post_order(int *serial,BDD_NODE *node,FILE* out){
         }else{
             fputc('@',out);
             fputc(node-bdd_nodes,out);
+            //printf("%c %li\n",'@',node-bdd_nodes);
             *(bdd_index_map+(node-bdd_nodes))=*serial;
             *serial+=1;
             return;
