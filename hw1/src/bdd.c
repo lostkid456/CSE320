@@ -241,7 +241,7 @@ BDD_NODE *bdd_zoom(BDD_NODE *node, int level, int factor) {
         if(zoom+node<0 || zoom+node_level>BDD_LEVELS_MAX){
             return NULL;
         }else{
-            return zoom_in_helper(node,zoom)+bdd_nodes;
+            return zoom_in_helper(node,factor)+bdd_nodes;
         }
     }else if(factor>=240 && factor<=256){
         int zoom=1<<(factor-240);
@@ -249,7 +249,7 @@ BDD_NODE *bdd_zoom(BDD_NODE *node, int level, int factor) {
         if(zoom+node<0 || zoom+node_level>BDD_LEVELS_MAX){
             return NULL;
         }else{
-            return zoom_out_helper(node,zoom)+bdd_nodes;
+            return zoom_out_helper(node,factor)+bdd_nodes;
         }
     }else if(factor==0){
         return node;

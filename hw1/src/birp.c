@@ -45,9 +45,6 @@ int birp_to_birp(FILE *in, FILE *out) {
     }
     if((global_options & 0xf00)>>8==0x3){
         int zoom=global_options>>16;
-        if(zoom<0){
-            zoom=zoom+256;
-        }
         BDD_NODE *zoomed=bdd_zoom(node,0,zoom);
         img_write_birp(zoomed,wp,hp,out);
         return 0;
@@ -320,7 +317,7 @@ int validargs(int argc, char **argv) {
                     int int_param=str_to_int(*argv);
                     if(int_param>=0 && int_param<=16){
                         global_options=global_options|0x300;
-                        global_options=global_options|((-int_param)<<16);
+                        global_options=global_options|((256-int_param)<<16);
                         optional_flag_counter+=1;
                         if(input_counter==0){
                             global_options=global_options|0x2;
