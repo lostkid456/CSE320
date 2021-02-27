@@ -145,8 +145,11 @@ int zoom_in_helper(BDD_NODE *node,int zoom){
 
 int zoom_out_helper(BDD_NODE *node,int zoom){
     if((*node).level<=(2*zoom)){
-        BDD_NODE *left_node=LEFT(node,(*node).level);
-        BDD_NODE *right_node=RIGHT(node,(*node).level);
+        if(node-bdd_nodes==0){
+            return 0;
+        }else{
+            return 255;
+        }
     }
     return bdd_lookup(((*node).level)-(2*zoom),zoom_out_helper(LEFT(node,(*node).level),zoom),zoom_out_helper(RIGHT(node,(*node).level),zoom));
 }
