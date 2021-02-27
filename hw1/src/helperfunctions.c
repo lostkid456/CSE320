@@ -154,7 +154,8 @@ unsigned char negate(unsigned char val){
     return 255-val;
 }
 unsigned char threshold(unsigned char val){
-    if(val<(global_options<<16)){
+    //printf("%i %i\n",global_options>>16,val);
+    if(val<(global_options>>16)){
         return 0;
     }else{
         return 255;

@@ -39,7 +39,8 @@ int birp_to_birp(FILE *in, FILE *out) {
         index_map_pointer++;
     }
     if((global_options & 0xf00)>>8==0x4){
-        bdd_rotate(node,(*node).level);
+        BDD_NODE *rotated=bdd_rotate(node,(*node).level);
+        img_write_birp(rotated,wp,hp,out);
         return 0;
     }
     if((global_options & 0xf00)>>8==0x3){
@@ -47,19 +48,22 @@ int birp_to_birp(FILE *in, FILE *out) {
         if(zoom<0){
             zoom=zoom+256;
         }
-        bdd_zoom(node,0,zoom);
+        BDD_NODE *zoomed=bdd_zoom(node,0,zoom);
+        img_write_birp(zoomed,wp,hp,out);
         return 0;
     }
     if((global_options & 0xf00)>>8==0x2){
         unsigned char (*func)(unsigned char);
         func=&threshold;
-        bdd_map(node,func);
+        BDD_NODE *thresholded=bdd_map(node,func);
+        img_write_birp(thresholded,wp,hp,out);
         return 0;
     }
     if((global_options & 0xf00)>>8==0x1){
         unsigned char (*func)(unsigned char);
         func=&negate;
-        bdd_map(node,func);
+        BDD_NODE *negated=bdd_map(node,func);
+        img_write_birp(negated,wp,hp,out);
         return 0;
     }
     if((global_options & 0xf00)>>8==0x0){
@@ -316,7 +320,7 @@ int validargs(int argc, char **argv) {
                     int int_param=str_to_int(*argv);
                     if(int_param>=0 && int_param<=16){
                         global_options=global_options|0x300;
-                        global_options=global_options|(int_param<<16);
+                        global_options=global_options|((-int_param)<<16);
                         optional_flag_counter+=1;
                         if(input_counter==0){
                             global_options=global_options|0x2;
@@ -345,7 +349,7 @@ int validargs(int argc, char **argv) {
                     int int_param=str_to_int(*argv);
                     if(int_param>=0 &&  int_param<=16){
                         global_options=global_options|0x300;
-                        global_options=global_options|(-int_param<<16);
+                        global_options=global_options|(int_param<<16);
                         optional_flag_counter+=1;
                         if(input_counter==0){
                             global_options=global_options|0x2;
