@@ -236,20 +236,18 @@ BDD_NODE *bdd_rotate(BDD_NODE *node, int level) {
 BDD_NODE *bdd_zoom(BDD_NODE *node, int level, int factor) {
     // TO BE IMPLEMENTED
     if(factor>0 && factor<=16){
-        int zoom=1<<factor;
         int node_level=(*node).level;
-        if(zoom+node<0 || zoom+node_level>BDD_LEVELS_MAX){
+        if(factor+node_level<0 || factor+node_level>BDD_LEVELS_MAX){
             return NULL;
         }else{
             return zoom_in_helper(node,factor)+bdd_nodes;
         }
-    }else if(factor>=240 && factor<=256){
-        int zoom=1<<(factor-240);
+    }else if(factor>=240 && factor<=256){;
         int node_level=(*node).level;
-        if(zoom+node<0 || zoom+node_level>BDD_LEVELS_MAX){
+        if(factor-240+node<0 || factor-240+node_level>BDD_LEVELS_MAX){
             return NULL;
         }else{
-            return zoom_out_helper(node,factor)+bdd_nodes;
+            return zoom_out_helper(node,factor-240)+bdd_nodes;
         }
     }else if(factor==0){
         return node;
