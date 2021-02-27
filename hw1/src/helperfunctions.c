@@ -140,7 +140,7 @@ int zoom_in_helper(BDD_NODE *node,int zoom){
     if((*node).level==0){
         return node-bdd_nodes;
     }
-    return bdd_lookup(((*node).level)+(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
+    return bdd_lookup(((*node).level)+(2*zoom),zoom_in_helper(LEFT(node,(*node).level),zoom),zoom_in_helper(RIGHT(node,(*node).level),zoom));
 }
 
 int zoom_out_helper(BDD_NODE *node,int zoom){
@@ -151,7 +151,7 @@ int zoom_out_helper(BDD_NODE *node,int zoom){
             return 255;
         }
     }
-    return bdd_lookup(((*node).level)-(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
+    return bdd_lookup(((*node).level)-(2*zoom),zoom_out_helper(LEFT(node,(*node).level),zoom),zoom_out_helper(RIGHT(node,(*node).level),zoom));
 }
 
 unsigned char negate(unsigned char val){
