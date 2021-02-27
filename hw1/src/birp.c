@@ -64,6 +64,7 @@ int birp_to_birp(FILE *in, FILE *out) {
     }
     if((global_options & 0xf00)>>8==0x0){
         img_write_birp(node,wp,hp,out);
+        return 0;
     }
     return 0;
 }
@@ -198,6 +199,9 @@ int validargs(int argc, char **argv) {
                     global_options=0x00;
                     return -1;
                 }
+            }
+            if(input_counter==1 && output_counter==0){
+                global_options = global_options | 0x20;
             }
             flag="-o";
             if(str_compare(*argv,flag)){
