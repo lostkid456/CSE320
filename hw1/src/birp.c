@@ -38,7 +38,33 @@ int birp_to_birp(FILE *in, FILE *out) {
         *(index_map_pointer)=0;
         index_map_pointer++;
     }
-    
+    if((global_options & 0xf00)>>8==0x4){
+        bdd_rotate(node,(*node).level);
+        return 0;
+    }
+    if((global_options & 0xf00)>>8==0x3){
+        int zoom=global_options>>16;
+        if(zoom<0){
+            zoom=zoom+256;
+        }
+        bdd_zoom(node,0,zoom);
+        return 0;
+    }
+    if((global_options & 0xf00)>>8==0x2){
+        unsigned char (*func)(unsigned char);
+        func=&threshold;
+        bdd_map(node,func);
+        return 0;
+    }
+    if((global_options & 0xf00)>>8==0x1){
+        unsigned char (*func)(unsigned char);
+        func=&negate;
+        bdd_map(node,func);
+        return 0;
+    }
+    if((global_options & 0xf00)>>8==0x0){
+        img_write_birp(node,wp,hp,out);
+    }
     return 0;
 }
 
@@ -285,7 +311,7 @@ int validargs(int argc, char **argv) {
                     }
                     int int_param=str_to_int(*argv);
                     if(int_param>=0 && int_param<=16){
-                        global_options=global_options|0x400;
+                        global_options=global_options|0x300;
                         global_options=global_options|(int_param<<16);
                         optional_flag_counter+=1;
                         if(input_counter==0){
@@ -314,8 +340,8 @@ int validargs(int argc, char **argv) {
                     }
                     int int_param=str_to_int(*argv);
                     if(int_param>=0 &&  int_param<=16){
-                        global_options=global_options|0x400;
-                        global_options=global_options|(-int_param<<4);
+                        global_options=global_options|0x300;
+                        global_options=global_options|(-int_param<<16);
                         optional_flag_counter+=1;
                         if(input_counter==0){
                             global_options=global_options|0x2;

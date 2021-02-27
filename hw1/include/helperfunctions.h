@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include "bdd.h"
+#include "const.h"
 
 int index_counter;
 
@@ -27,12 +28,12 @@ int rotate_helper(BDD_NODE *node,int level);
 
 int map_helper(BDD_NODE *node,unsigned char (*func)(unsigned char));
 
-int zoom_in_helper();
+int zoom_in_helper(BDD_NODE *node,int zoom);
 
-int zoom_out_helper();
+int zoom_out_helper(BDD_NODE *node,int zoom);
 
-int negate();
+unsigned char negate(unsigned char val);
 
-int threshold(int threshold);
+unsigned char threshold(unsigned char val);
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "helperfunctions.h"
 #include "bdd.h"
+#include "const.h"
 
 #define LEFT(np, l) ((l) > (np)->level ? (np) : bdd_nodes + (np)->left)
 #define RIGHT(np, l) ((l) > (np)->level ? (np) : bdd_nodes + (np)->right)
@@ -130,24 +131,35 @@ int rotate_helper(BDD_NODE *node,int level){
 
 int map_helper(BDD_NODE *node,unsigned char (*func)(unsigned char)){
     if((*node).level==0){
-        return func(node-bdd_nodes);
+        return (*func)(node-bdd_nodes);
     }
     return bdd_lookup((*node).level,map_helper(LEFT(node,(*node).level),(*func)),map_helper(RIGHT(node,(*node).level),(*func)));
 }
 
-int zoom_in_helper(){
-
+int zoom_in_helper(BDD_NODE *node,int zoom){
+    if((*node).level==0){
+        return node-bdd_nodes;
+    }
+    return bdd_lookup((*node).level+(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
 }
 
-int zoom_out_helper(){
-
+int zoom_out_helper(BDD_NODE *node,int zoom){
+    if((*node).level<=(2*zoom)){
+        return node-bdd_nodes;
+    }
+    return bdd_lookup((*node).level-(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
 }
 
-int negate(){
-    
+unsigned char negate(unsigned char val){
+    return 255-val;
 }
-
-int threshold(int threshold){}
+unsigned char threshold(unsigned char val){
+    if(val<(global_options<<16)){
+        return 0;
+    }else{
+        return 255;
+    }
+}
 
 
 
