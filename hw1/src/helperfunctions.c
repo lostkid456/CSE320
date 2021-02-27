@@ -115,18 +115,18 @@ void post_order(int *serial,BDD_NODE *node,FILE* out){
 }
 
 int rotate_helper(BDD_NODE *node,int level){
-    if(level==0){
+    if((*node).level==0){
         return node-bdd_nodes;
     }
     BDD_NODE *left_node=LEFT(node,(*node).level);
-    BDD_NODE *right_node=RIGHT(node,(*node).right);
+    BDD_NODE *right_node=RIGHT(node,(*node).level);
     int a=rotate_helper(LEFT(left_node,(*left_node).level),level-1);
     int b=rotate_helper(RIGHT(left_node,(*left_node).level),level-1);
-    int c=rotate_helper(LEFT(right_node,(*left_node).level),level-1);
-    int d=rotate_helper(RIGHT(right_node,(*left_node).level),level-1);
-    int left_half=bdd_lookup(2*level-1,b,d);
-    int right_half=bdd_lookup(2*level-1,a,c);
-    return bdd_lookup(2*level,left_half,right_half);
+    int c=rotate_helper(LEFT(right_node,(*right_node).level),level-1);
+    int d=rotate_helper(RIGHT(right_node,(*right_node).level),level-1);
+    int left_half=bdd_lookup((2*level)-1,b,d);
+    int right_half=bdd_lookup((2*level)-1,a,c);
+    return bdd_lookup(2*level,right_half,left_half);
 }
 
 int map_helper(BDD_NODE *node,unsigned char (*func)(unsigned char)){
@@ -140,14 +140,18 @@ int zoom_in_helper(BDD_NODE *node,int zoom){
     if((*node).level==0){
         return node-bdd_nodes;
     }
-    return bdd_lookup((*node).level+(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
+    return bdd_lookup(((*node).level)+(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
 }
 
 int zoom_out_helper(BDD_NODE *node,int zoom){
     if((*node).level<=(2*zoom)){
-        return node-bdd_nodes;
+        if(node-bdd_nodes==0){
+            return 0;
+        }else{
+            return 255;
+        }
     }
-    return bdd_lookup((*node).level-(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
+    return bdd_lookup(((*node).level)-(2*zoom),LEFT(node,(*node).level)-bdd_nodes,RIGHT(node,(*node).level)-bdd_nodes);
 }
 
 unsigned char negate(unsigned char val){
