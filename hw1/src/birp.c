@@ -47,7 +47,7 @@ int birp_to_birp(FILE *in, FILE *out) {
         int zoom=global_options>>16;
         BDD_NODE *zoomed=bdd_zoom(node,0,zoom);
         if(zoom>16){
-            img_write_birp(zoomed,wp>>zoom,hp>>zoom,out);
+            img_write_birp(zoomed,wp>>(zoom-240),hp>>(zoom-240),out);
         }else{
             img_write_birp(zoomed,wp<<zoom,hp<<zoom,out);
         }
