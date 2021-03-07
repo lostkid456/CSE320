@@ -7,7 +7,6 @@
    Nom: notation
    Auteur: Henry Thomas
    Date: 27/11/90
-/*
 This file is part of NOTATION program.
 
 NOTATION is free software; you can redistribute it and/or modify
@@ -386,7 +385,7 @@ static int find_keyword(tab, nbentry,defaut,key,warning)
   int i ;
 
   for(i=0; (i< nbentry) ;i++)
-    if (strcmp(tab[i],key))
+    if (strcmp(tab[i],key)==0)
       return(i);
 
   /* we failed to find the keyword */
@@ -483,7 +482,7 @@ depl * new_move()
   int i; 
   static int counter = 0;
 
-  tmp = (depl *) malloc (sizeof(depl *));
+  tmp = (depl *) malloc (sizeof(depl));
   ALLOCP(tmp);
   for (i=0; i < ((sizeof (depl))/ sizeof (int)) ; i++)
     ((int *) tmp)[i] = 0;
@@ -568,6 +567,7 @@ static depl * add_variation(mo)
      we have to go back in the numbering */
   ip->sub->whiteturn =  mo->prev->whiteturn  ;
   ip->sub->move = mo->prev->move ;
+  ip->sub->type = mo->prev->type ;
 
   return(ip->sub);
 }
@@ -737,7 +737,7 @@ void enter_variation()
        so we need to backtrack one move
        */
     m = add_variation(stack[l].d);
-    undo_move(tos,stack[l].d);
+    undo_move(tos,stack[l].d->prev);
 
     /* set variables */
     l++;
@@ -1228,7 +1228,7 @@ int execute_move()
 	}
       }
   }
-
+  m=m->next;
   return(TRUE);
 }
 
@@ -1298,7 +1298,7 @@ int execute(num,c)
     m->tocol = curcol;
     m->tolig = curlig ;
 
-    /*m->topiece = curpiece ; /* ? */
+    /*m->topiece = curpiece ;  ? */
 
     if (configuring)
       (void) configure();
@@ -1481,13 +1481,13 @@ int parse_keyword(token,text)
     free_move_list(m);
     break;
   case TITLE:
-    output_text(dr, T_TITLE, text, NULL);
+    output_text(dr, T_TITLE, text, 0);
     break;
   case SUBTITLE:
-    output_text(dr, T_SUBTITLE, text, NULL);
+    output_text(dr, T_SUBTITLE, text, 0);
     break;
   case SCORE:
-    output_text(dr, T_SCORE, text, NULL);
+    output_text(dr, T_SCORE, text, 0);
     break;
   case LANGUE:
     in_language = find_keyword (t_language, NBLANGUAGES, in_language,
@@ -1519,8 +1519,8 @@ int parse_roque(token)
   for (i=0; i < NBROQUE && (strcmp(c_roque[i],token)!=0); i++) ;
   if ( i < NBROQUE ) {
     
-    m = add_trailing_move(m);
-    init_parse(m);
+    m->next = add_trailing_move(m);
+    init_parse(m->next);
 
     if (strlen(token) == 3) {
       m->type = PETITROQUE ;
@@ -1549,9 +1549,9 @@ int  parse_move(token)
   int etat =0;
   int code;
   
-  m = add_trailing_move(m);
-  init_parse(m);
-  m->type = MOVE;
+  m->next = add_trailing_move(m);
+  init_parse(m->next);
+  m->next->type = MOVE;
 
   i=0;
   while ( !correcte && !erreursyntaxe ) {
@@ -1827,8 +1827,9 @@ int notation_main(argc,argv)
   init_board(tos);
 
   /* allocation of move descriptor */
-  m->type = VOID ;
-  /*init_move(m);*/
+  m = new_move();
+  m->type = MOVE;
+  init_move(m);
   
   /* allocation of the play descriptor */
   theplay = (play *) malloc (sizeof(play)) ;
@@ -1840,7 +1841,7 @@ int notation_main(argc,argv)
   yyin = infile ;
   yyout = stderr ;
 
-  /*init_parse(m); */
+  init_parse(m); 
   yylex();
 
   if ((count == 0) && !error_flag)

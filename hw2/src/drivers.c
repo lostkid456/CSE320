@@ -8,6 +8,8 @@
 #endif
 #include<stdio.h>
 
+#include <string.h>
+
 #include <ctype.h>
 #include "chesstype.h"
 #include "notation.h"
@@ -212,7 +214,7 @@ static void output_move_generic(dr,d)
      depl *d;
 #endif
 {
-  char ligne[128] ;
+  //char ligne[128] ;
   char themove[128] ;
   char thepiece[16]  ;
   char debcol[16];
@@ -225,7 +227,9 @@ static void output_move_generic(dr,d)
   int ambigue = FALSE ;
   int ambigueline, ambiguecols;
 
-  ligne[0] = themove[0] = thepiece[0] = '\0';
+
+  //ligne[0] = 
+  themove[0] = thepiece[0] = '\0';
   frommove[0] = tomove[0] = lie[0] = prom[0] = '\0' ;
 
   if (dr->type == D_TEX) 
@@ -371,11 +375,12 @@ static void output_text_generic(dr, type, string, code)
 {
   switch (type) {
   case T_COMMENT:
-    if (com_short[code] != '\0' )
+    if (*(com_short[code]) != '\0' )
       (void) fprintf(dr->outfile," %s ",com_short[code]);
-    else
+    else{
       (void) fprintf(dr->outfile," %s ",com_long[code]);
       break;
+    }
   case T_TEXT:
     (void) fprintf(dr->outfile," %s ",string);
     break;
@@ -558,11 +563,12 @@ static void output_text_tex(dr, type, string, code)
 
   switch (type) {
   case T_COMMENT:
-    if (com_tex[code] != '\0' )
+    if (*(com_tex[code]) != '\0' )
       (void) fprintf(dr->outfile,"%s\\ ",com_tex[code]);
-    else
+    else{
       (void) fprintf(dr->outfile,"%s\\ ",com_short[code]);
       break;
+    }
   case T_TEXT:
     (void) fprintf(dr->outfile," %s ",string);
     break;
