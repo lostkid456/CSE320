@@ -1293,6 +1293,7 @@ int execute(num,c)
     m->prise = curpiece;
     break;
   case 6: /* to = cur ; guess from */
+    
   case 7: /* to = cur ; guess from ; parse remaining token */
     m->piece = curpiece ;
     m->tocol = curcol;
@@ -1419,7 +1420,8 @@ int parse_comment(com)
     /* we look for the comment in the short ascii table */
     t = find_keyword(com_short, NUM_COM_CODE, NUM_COM_CODE, com,FALSE);
     if (t == NUM_COM_CODE)
-      fprintf (stderr,"\nWhat is \"%s\" ?\n",com);   
+      //fprintf (stderr,"\nWhat is \"%s\" ?\n",com);   
+      fatal((stderr,"\nWhat is \"%s\" ?\n",com));
   }
   if (t != NUM_COM_CODE)
     output_text(dr,T_COMMENT, com, t);
@@ -1456,12 +1458,12 @@ int parse_keyword(token,text)
     /* don't forget we are configuring the previous move */
     /* reset to 0,black --> 1,white */
     m->move = 0;
-    m->whiteturn = FALSE;
+    m->whiteturn = TRUE;
     break;
   case TOBLACK:
     /* reset to 1,white -> 1 black */
     m->move = 1;
-    m->whiteturn = TRUE;
+    m->whiteturn = FALSE;
     break;
   case CONFIGWH:
     configuring = TRUE ;
@@ -1500,6 +1502,7 @@ int parse_keyword(token,text)
     putc ('\n', dr->outfile);
     break;
   case KNULL:
+    break;
   default:
     fprintf(stderr,"unknown keyword %s\n",token);
     break;
@@ -1654,6 +1657,7 @@ int parse_options(argc,argv)
 	  (void) fprintf (stderr,"can't open %s output file\n",argv[narg]);
 	  (void) fprintf (stderr,"assume stdout for output\n");
 	}
+  break;
       case 'e':
 	if  ((narg+1) >= argc )
 	  fatal((stderr,"missing argument to %s option",cp));
@@ -1852,7 +1856,8 @@ int notation_main(argc,argv)
     output_board(dr,tos);
     fatal((stderr,"\nToo many errors"));
   }
-      
+
+
   /* terminates output files */
   output_end(dr);
 
