@@ -1227,6 +1227,20 @@ int execute_move()
 	if (stop_at_display) {
 	  output_end(dr);
 	  close_files();
+  free(tos);
+
+  while(m->prev!=(depl *) NULL){
+    m=m->prev;
+  }
+
+  free_move_list(m);
+
+  free(m);
+
+
+  free(theplay);
+
+  yylex_destroy();
 	  exit(0);
 	}
       }
@@ -1634,6 +1648,7 @@ int parse_options(argc,argv)
   int narg = 0;
   int i;
   register int c;
+  int index=0;
   char cp[132];
   char chaine[MAXTOKLEN];
 
@@ -1648,7 +1663,7 @@ int parse_options(argc,argv)
     {"help",no_argument,0,'h'},{"version",no_argument,0,'v'},{0,0,0,0}
   };
 
-  while((c=getopt_long(argc,argv,"asbhivf:t:o:c:e:d:",long_operations,&narg))!=-1){
+  while((c=getopt_long(argc,argv,"asbhivf:t:o:c:e:d:",long_operations,&index))!=-1){
     switch (c)
     {
     case 'a':
@@ -1675,25 +1690,26 @@ int parse_options(argc,argv)
       break;
     case 'o':
       /* code */
-      narg++ ;
-      if ((dr->outfile = fopen (argv[narg],"w+")) == NULL) {
+      if ((dr->outfile = fopen (optarg,"w+")) == NULL) {
         (void) fprintf (stderr,"can't open %s output file\n",argv[narg]);
         (void) fprintf (stderr,"assume stdout for output\n");
       }
       break;
     case 'c':
       /* code */
-      narg++ ;
+      narg++;
       i=0;
-      while (isdigit(argv[narg][i])) {
+      while (isdigit(optarg[i])) {
         move_to_display[nb_move_to_dsp] = 0;
-        while (isdigit(argv[narg][i])) {
+        while (isdigit(optarg[i])) {
           move_to_display[nb_move_to_dsp] =
-          ((int) argv[narg][i] - (int) '0')+ move_to_display[nb_move_to_dsp] * 10;
+          ((int) optarg[i] - (int) '0')+ move_to_display[nb_move_to_dsp] * 10;
           i++;
         }
       nb_move_to_dsp++;
-      if (argv[narg][i] == ',')
+      if (nb_move_to_dsp > NB_MOVE_TO_DISP)
+	    fatal((stderr,"max. number of move to display exceeded"));
+      if (optarg[i] == ',')
       i++;
       }
       break;
@@ -1703,8 +1719,8 @@ int parse_options(argc,argv)
       i=0;
 	    nb_move_to_dsp = 0;
 	    move_to_display[nb_move_to_dsp] = 0;
-	    while (isdigit(argv[narg][i])) {
-        move_to_display[nb_move_to_dsp] =((int) argv[narg][i] - (int) '0')+ move_to_display[nb_move_to_dsp] * 10;
+	    while (isdigit(optarg[i])) {
+        move_to_display[nb_move_to_dsp] =((int) optarg[i] - (int) '0')+ move_to_display[nb_move_to_dsp] * 10;
         i++;
       }
       nb_move_to_dsp++;
@@ -1732,6 +1748,7 @@ int parse_options(argc,argv)
           while ((c = getc(fhelp)) != EOF)
           (void) fputc(c,stderr);
           (void) fclose(fhelp);
+          free(dr);
           exit(0);
         }
       break;
@@ -1756,6 +1773,7 @@ int parse_options(argc,argv)
       fatal((stderr,"can't open %s input file\n",cp));
     }
     narg++;
+    index++;
   }
   return argc;
 }
@@ -1880,8 +1898,6 @@ int notation_main(argc,argv)
   close_files();
 
   free(tos);
-
-  //free_move_list(theplay->chain);
 
   while(m->prev!=(depl *) NULL){
     m=m->prev;
