@@ -1679,19 +1679,19 @@ int parse_options(argc,argv)
       narg++ ;
       in_language = find_keyword (t_language, NBLANGUAGES,
 				    DEFAULT_INPUT_LANGUAGE,
-				    argv[narg],TRUE);
+				    optarg,TRUE);
       break;
     case 't':
       /* code */
       narg++ ;
       out_language = find_keyword (t_language, NBLANGUAGES,
 				     DEFAULT_OUTPUT_LANGUAGE,
-				     argv[narg],TRUE);
+				     optarg,TRUE);
       break;
     case 'o':
       /* code */
       if ((dr->outfile = fopen (optarg,"w+")) == NULL) {
-        (void) fprintf (stderr,"can't open %s output file\n",argv[narg]);
+        (void) fprintf (stderr,"can't open %s output file\n",optarg);
         (void) fprintf (stderr,"assume stdout for output\n");
       }
       break;
@@ -1734,7 +1734,7 @@ int parse_options(argc,argv)
       /* code */
       narg++ ;
       driver = find_keyword(t_output, NB_DRIVER, DEFAULT_DRIVER,
-			      argv[narg],TRUE);
+			      optarg,TRUE);
       break; 
     case 'i':
       dr->print_headers = FALSE;
@@ -1758,7 +1758,7 @@ int parse_options(argc,argv)
 	    break; 
     case '?':
       if (optopt=='f'||optopt=='t'||optopt=='o'||optopt=='c'||optopt=='e'||optopt=='d'){
-        fatal((stderr,"missing argument to %s option",cp));
+        fatal((stderr,"missing argument to %c option",optopt));
       }
 	    break;
     default:
@@ -1856,9 +1856,10 @@ int notation_main(argc,argv)
   /* initialise output file */
   output_init(dr);
 
-  if (error_flag)
+  if (error_flag){
+    free(dr);
     fatal((stderr,"\nToo many errors"));
-  
+  }
   /* allocation of board descriptor */
   tos = new_board();
   init_board(tos);
