@@ -1,0 +1,57 @@
+Graded Commit:a5bf709d597be15410f7ee64453a2cacaff546f0
+
+TEST NAME, POINTS,OUT OF
+basecode_tests_suite/birp_basic_test,1,1,
+black_box_tests/birp_to_pgm_cat,1,1,
+blackbox_tests/BWHoriz_to_ASCII,1,1,
+blackbox_tests/BWHoriz_to_Birp,1,1,
+blackbox_tests/BWHoriz_to_PGM,1,1,
+blackbox_tests/BWVert_to_ASCII,1,1,
+blackbox_tests/BWVert_to_Birp,1,1,
+blackbox_tests/BWVert_to_PGM,1,1,
+blackbox_tests/allBlack_to_ASCII,1,1,
+blackbox_tests/allBlack_to_birp,1,1,
+blackbox_tests/allBlack_to_pgm,1,1,
+blackbox_tests/allWhite_to_ASCII,1,1,
+blackbox_tests/allWhite_to_birp,1,1,
+blackbox_tests/allWhite_to_pgm,1,1,
+blackbox_tests/birp_2_pgm1,1,1,
+blackbox_tests/birp_2_pgm_2,1,1,
+blackbox_tests/birp_2_pgm_3,1,1,
+blackbox_tests/birp_to_birp_1,1,1,
+blackbox_tests/birp_to_birp_2,1,1,
+blackbox_tests/both_to_ascii,1,1,
+blackbox_tests/pgm_2_birp1,1,1,
+blackbox_tests/pgm_2_birp_cat,0,1,The test timed out.: None
+invalid_args_tests/big_zoomIn_error,1,1,
+invalid_args_tests/big_zoomOut_error,1,1,
+invalid_args_tests/comp_trans_combo,0,1,1 assertion(s) failed.: tests/validargs_tests.c:153: Invalid return for valid args. Got: 0 | Expected: -1
+invalid_args_tests/input_rotation_error,0,1,1 assertion(s) failed.: tests/validargs_tests.c:222: Invalid Global options. Got 0x21 | Expected 0x0
+invalid_args_tests/input_rotation_test,0,1,1 assertion(s) failed.: tests/validargs_tests.c:209: Invalid return for valid args. Got: -1 | Expected: 0
+invalid_args_tests/negative_zoomIn_error,1,1,
+invalid_args_tests/negative_zoomOut_error,1,1,
+invalid_args_tests/out_of_order,1,1,
+invalid_args_tests/transform_check,0,1,1 assertion(s) failed.: tests/validargs_tests.c:232: Invalid return for valid args. Got: -1 | Expected: 0
+invalid_args_tests/transform_error,0,1,1 assertion(s) failed.: tests/validargs_tests.c:246: Invalid Global options. Got 0x32 | Expected 0x0
+unit_test_suite/bdd_apply_test,1,1,
+unit_test_suite/bdd_lookup_hash_stress,0,1,The test timed out.: None
+unit_test_suite/bdd_lookup_retrieval,1,1,
+unit_test_suite/bdd_lookup_skip,1,1,
+unit_test_suite/bdd_map_contrast_test,1,1,
+unit_test_suite/bdd_raster_test,1,1,
+unit_test_suite/bdd_rotate_360_test,1,1,
+unit_test_suite/bdd_serialize,1,1,
+unit_test_suite/bdd_serialize_twice,0,1,1 assertion(s) failed.: tests/bdd_unit_tests.c:259: bdd_serialize did not produce the same file between two calls
+unit_test_suite/zoom_in_out_test,0,1,The test timed out.: None
+validargs_tests_suite/help_system_test,1,1,
+validargs_tests_suite/valid_args_ignore_flags_test,1,1,
+validargs_tests_suite/valid_args_incorrect_order_test,1,1,
+validargs_tests_suite/valid_args_no_parameter_test,1,1,
+validargs_tests_suite/valid_args_threshold_bounds_test,1,1,
+validargs_tests_suite/valid_args_zoom_out_test,1,1,
+validargs_tests_suite/validargs_error_test,1,1,
+validargs_tests_suite/validargs_help_test,1,1,
+validargs_tests_suite/validargs_input_test,1,1,
+validargs_tests_suite/validargs_output_test,1,1,
+validargs_tests_suite/validargs_transform_test,1,1,
+total,44,53
