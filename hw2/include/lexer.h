@@ -17,5 +17,12 @@ extern int yylex(/*void*/);
 extern int yylex(/*void*/);
 #endif
 
+#ifdef __STDC__
+extern int yylex_destroy(/*void*/);
+#else
+extern int yylex_destroy(/*void*/);
+#endif
+
+
 
 #endif
