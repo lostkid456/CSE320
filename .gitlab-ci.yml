@@ -2,7 +2,7 @@ image: hwrunner:latest
 variables:
     GIT_SSL_NO_VERIFY: "true"
     EXEC: sfmm
-    HW_DIR: hw2
+    HW_DIR: hw3
     CPU_LIMIT: 60
     FILE_LIMIT: 1000000
 before_script:
