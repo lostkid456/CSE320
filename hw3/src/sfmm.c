@@ -7,12 +7,43 @@
 #include <string.h>
 #include "debug.h"
 #include "sfmm.h"
+#include "helper.h"
+
 
 void *sf_malloc(size_t size) {
-    return NULL;
+    if(cnt==0){
+        if(sf_init()!=0){
+            return NULL;
+        }
+    }
+    cnt+=1;
+    if(size==0){
+        return NULL;
+    }
+    void *hp;
+    if(size<=24){
+        size=32;
+    }else{
+        size = (size + 8) % 16 == 0 ? size + 8 : (16 - ((size + 8) % 16)) + size + 8;
+    }
+    if((hp=find_segment(size))!=NULL){
+        hp=place_block(hp,size);
+        return (hp+8);
+    }
+    if((hp=sf_mem_grow())==NULL){
+        sf_errno=12;
+        return NULL;
+    }
+    if((hp=init_extended_heap(size,hp))==NULL){
+        sf_errno=12;
+        return NULL;
+    }
+    hp=place_block(hp,size);
+    return (hp+8);
 }
 
 void sf_free(void *pp) {
+    
     return;
 }
 
