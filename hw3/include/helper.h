@@ -13,13 +13,12 @@ int cnt;
 #define GET_ALLOC(p) (GET(p)->header & 0x1)
 #define GET_PREVALLOC(p) (GET(p->header) & 0x2)
 
-#define HDRP(bp)       ( (void *)(bp))
-#define FTRP(bp)       ( (void *)(bp) + GET_SIZE(HDRP(bp)) - 8 )
-
 #define NEXT_BLKP(bp)  ( (void *)(bp) + GET_SIZE(((void *)(bp) )) )
 #define PREV_BLKP(bp)  ( (void *)(bp) - GET_SIZE(((void *)(bp) )) + 8  )
 
 int sf_init(); 
+
+void *coalesce(void *bp);
 
 void *init_extended_heap(size_t size,void *block);
 

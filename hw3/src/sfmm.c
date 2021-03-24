@@ -43,8 +43,18 @@ void *sf_malloc(size_t size) {
 }
 
 void sf_free(void *pp) {
+    pp=pp-8;
+    if(pp==NULL){
+        abort();
+    }
+    size_t header=GET(pp)->header;
+    header=header|~(0x2);
+    size_t size = GET_SIZE(pp);
+    ((sf_block*)(pp))->header=PACK(size,0);
+    ((sf_block*)(sf_mem_end()-16))->header=PACK(size,0);
+    coalesce(pp);
+    remove_block(pp);
     
-    return;
 }
 
 void *sf_realloc(void *pp, size_t rsize) {

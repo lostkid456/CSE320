@@ -12,7 +12,7 @@ int sf_init()
         sf_free_list_heads[i].body.links.prev=&sf_free_list_heads[i];
     }
     void *hp;
-    if((hp=sf_mem_grow())!=0){
+    if((hp=sf_mem_grow())!=NULL){
         // 8 bytes of padding 
         ((sf_block *)(hp))->header=0;
         hp+=8;
@@ -36,36 +36,48 @@ int sf_init()
     return -1;
 }
 
+void *coalesce(void *bp){
+    size_t prev_alloc = GET_ALLOC(PREV_BLKP(bp-8));
+    size_t next_alloc = GET_ALLOC(NEXT_BLKP(bp));
+    size_t size = GET_SIZE(bp);
+    if(prev_alloc && next_alloc){
+        add_block(bp);
+        return bp;
+    }else if(prev_alloc && !(next_alloc)){
+        
+    }else if(!(prev_alloc) && next_alloc){
+        remove_block(PREV_BLKP(bp-8));
+        size+=GET_SIZE(PREV_BLKP(bp-8));
+        bp=PREV_BLKP(bp-8);
+        ((sf_block*)(bp))->header=PACK(size,0);
+        ((sf_block*)(bp+size-8))->header=PACK(size,0);
+    }else{
+        
+    }
+    add_block(bp);
+    return bp;
+}
+
 /*After mem_grow is called, we check whether there is enough space. If not then
 we extend the heap with mem_grow. Else we initialize the new memory added.*/
 void *init_extended_heap(size_t size,void *block){
     void *new_header=block-8;
-    void *old_footer=new_header-8;
-    size_t mask=~(0xf);
-    size_t previous_size=(((sf_block*)(old_footer))->header)&mask;
     //Out of memory 
     if(block==NULL){
         return NULL;
-    }
-    //If not enough space 
-    if(((previous_size+PAGE_SZ-16)-size)<32){
-        return init_extended_heap(size,sf_mem_grow());
-    }
-    // Old Page is FULL 
-    if(GET_ALLOC(old_footer)){
-        ((sf_block*)(new_header))->header=PACK(PAGE_SZ,0);
-        ((sf_block*)(sf_mem_end()-16))->header=PACK(PAGE_SZ,0);
-        ((sf_block*)(sf_mem_end()-8))->header=PACK(0,1);
-    }else{
-        //Old page not full, coalesce the previous header to the new header.
-        //Must also remove the old header from the free_list  and add the new _header to the free_list  
-        ((sf_block*)(new_header))->header=PACK(PAGE_SZ+previous_size,0);
-        remove_block((sf_block*)(PREV_BLKP(old_footer)));
-        add_block(new_header);
-        void* hp=sf_mem_end()-16;
-        ((sf_block*)(hp))->header=PACK(PAGE_SZ+previous_size,0);
-        hp=sf_mem_end()-8;
-        ((sf_block*)(hp))->header=PACK(0,1);
+    } 
+    ((sf_block*)(new_header))->header=PACK(PAGE_SZ,0);
+    void* hp=sf_mem_end()-16;
+    ((sf_block*)(hp))->header=PACK(PAGE_SZ,0);
+    hp=sf_mem_end()-8;
+    ((sf_block*)(hp))->header=PACK(0,1);
+    new_header=coalesce(new_header);
+    if(GET_SIZE(new_header)<size){
+        block=sf_mem_grow();
+        if(block==NULL){
+            return NULL;
+        }
+        return init_extended_heap(size,block);
     }
     return new_header;
 }
@@ -86,26 +98,21 @@ void *place_block(void* block,size_t size){
     size_t header_size=(((sf_block*)(block))->header&mask);
     remove_block(block);
     void *curr_free_block=find_free_region();
-    size_t prev_size=(((sf_block*)(curr_free_block))->header)&mask;
-    printf("%li\n",prev_size);
     if(header_size-size>=32){
         //Splitting block 
         //Allocated header
-        printf("%p\n",curr_free_block);
         ((sf_block*)(curr_free_block))->header=PACK(size,1)|0x2;
         block=NEXT_BLKP(curr_free_block);
-        printf("%p\n",block);
         //Split free block header 
         ((sf_block*)(block))->header=PACK(header_size-size,0)|0x2;
         //Split free block footer
-        ((sf_block*)(FTRP(block)))->header=PACK(header_size-size,0)|0x2;
-        printf("%p\n",FTRP(block));
+        ((sf_block*)(sf_mem_end()-16))->header=PACK(header_size-size,0)|0x2;
         add_block(block);
         return curr_free_block;
     }else{
         //No splitting 
         //Set header to allocated 
-        ((sf_block*)(block))->header=PACK(size,1)|0x2;
+        ((sf_block*)(curr_free_block))->header=PACK(size,1)|0x2;
         return block;
     }
     return NULL;
@@ -156,7 +163,7 @@ void *find_segment(size_t size){
     return NULL;
 }
 
-//Free_list index
+//Free_list index based on avaliablity 
 int segment_index(size_t size){
     void* bp;
     size_t mask=~(0xf);
@@ -203,7 +210,7 @@ int segment_index(size_t size){
 
 
 
-//Remove from free_list
+//Remove from free_list based on avaliablility 
 void remove_block(sf_block *block){
     size_t mask=~(0xf);
     size_t size=(block->header)&mask;
@@ -218,7 +225,7 @@ void remove_block(sf_block *block){
     block->body.links.prev=NULL;
 }
 
-//Add to free_list 
+//Add to free_list based on avaliability 
 void add_block(sf_block *block){
     size_t mask=~(0xf);
     size_t size=(block->header)&mask;
