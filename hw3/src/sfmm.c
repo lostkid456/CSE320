@@ -43,21 +43,29 @@ void *sf_malloc(size_t size) {
 }
 
 void sf_free(void *pp) {
-    pp=pp-8;
-    if(pp==NULL){
+    size_t bsize=GET_SIZE(pp-8);
+    size_t allocator=GET_ALLOC(pp-8);
+    sf_block* next_block=NEXT_BLKP(pp-8);
+    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))){
         abort();
     }
-    size_t header=GET(pp)->header;
-    header=header|~(0x2);
-    size_t size = GET_SIZE(pp);
-    ((sf_block*)(pp))->header=PACK(size,0);
-    ((sf_block*)(sf_mem_end()-16))->header=PACK(size,0);
-    coalesce(pp);
-    remove_block(pp);
-    
+    ((sf_block*)(NEXT_BLKP(pp-8)))->header=((sf_block*)(NEXT_BLKP(pp-8)))->header&(~0x2);
+    ((sf_block*)(FTRP(NEXT_BLKP(pp-8))))->header=((sf_block*)(NEXT_BLKP(pp-8)))->header&(~0x2);
+    ((sf_block*)(pp-8))->header=PACK(bsize,0)|0x2;
+    ((sf_block*)(FTRP(pp-8)))->header=PACK(bsize,0)|0x2;
+    sf_block* free_block= coalesce(pp-8);
+    remove_block(free_block);
+    add_to_proper_index(free_block);
+    sf_show_free_lists();
 }
 
 void *sf_realloc(void *pp, size_t rsize) {
+    size_t bsize=GET_SIZE(pp-8);
+    size_t allocator=GET_ALLOC(pp-8);
+    sf_block* next_block=NEXT_BLKP(pp-8);
+    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))){
+        abort();
+    }
     return NULL;
 }
 

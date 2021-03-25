@@ -11,7 +11,9 @@ int cnt;
 
 #define GET_SIZE(p)  (GET(p)->header & ~(0xf))
 #define GET_ALLOC(p) (GET(p)->header & 0x1)
-#define GET_PREVALLOC(p) (GET(p->header) & 0x2)
+#define GET_PREVALLOC(p) (GET(p)->header & 0x2)
+
+#define FTRP(p) ( (void*)(p) + GET_SIZE(((void *)(p) )) -8 )
 
 #define NEXT_BLKP(bp)  ( (void *)(bp) + GET_SIZE(((void *)(bp) )) )
 #define PREV_BLKP(bp)  ( (void *)(bp) - GET_SIZE(((void *)(bp) )) + 8  )
@@ -33,5 +35,9 @@ int segment_index(size_t size);
 void remove_block(sf_block *block);
 
 void add_block(sf_block *block);
+
+int proper_index(size_t size);
+
+void add_to_proper_index(sf_block *block);
 
 #endif

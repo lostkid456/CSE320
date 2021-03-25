@@ -37,14 +37,17 @@ int sf_init()
 }
 
 void *coalesce(void *bp){
-    size_t prev_alloc = GET_ALLOC(PREV_BLKP(bp-8));
+    size_t prev_alloc = GET_ALLOC(PREV_BLKP(bp-8)) || (PREV_BLKP(bp-8)==bp);
     size_t next_alloc = GET_ALLOC(NEXT_BLKP(bp));
     size_t size = GET_SIZE(bp);
     if(prev_alloc && next_alloc){
         add_block(bp);
         return bp;
     }else if(prev_alloc && !(next_alloc)){
-        
+        remove_block(NEXT_BLKP(bp));
+        size+=GET_SIZE(NEXT_BLKP(bp));
+        ((sf_block*)(bp))->header=PACK(size,0);
+        ((sf_block*)(bp+size-8))->header=PACK(size,0);
     }else if(!(prev_alloc) && next_alloc){
         remove_block(PREV_BLKP(bp-8));
         size+=GET_SIZE(PREV_BLKP(bp-8));
@@ -52,7 +55,12 @@ void *coalesce(void *bp){
         ((sf_block*)(bp))->header=PACK(size,0);
         ((sf_block*)(bp+size-8))->header=PACK(size,0);
     }else{
-        
+        remove_block(PREV_BLKP(bp-8));
+        remove_block(NEXT_BLKP(bp-8));
+        size+=GET_SIZE(PREV_BLKP(bp-8))+ GET_SIZE(NEXT_BLKP(bp-8));
+        bp=PREV_BLKP(bp-8);
+        ((sf_block*)(bp))->header=PACK(size,0);
+        ((sf_block*)(bp+size-8))->header=PACK(size,0);
     }
     add_block(bp);
     return bp;
@@ -176,16 +184,18 @@ int segment_index(size_t size){
                         return i;
                     }
                 }
+                continue;
             }
         }
         if(i==6){
-            if(size>(1<<5)*32){
+            if(size>((1<<5)*32)){
                 bp=&sf_free_list_heads[i];
                 for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
                     if(((((sf_block *)(bp))->header)&mask)>=size && !(GET_ALLOC(bp)) ){
                         return i;
                     }
                 }
+                continue;
             }
         }
         if(i==7){
@@ -235,6 +245,37 @@ void add_block(sf_block *block){
     block->body.links.next=curr_segment->body.links.next;
     block->body.links.prev=curr_segment;
     curr_segment->body.links.next->body.links.prev=block;
+    curr_segment->body.links.next=block;
+}
+
+int proper_index(size_t size){
+    for(int i=0;i<NUM_FREE_LISTS-1;i++){
+        if(i==0){
+            if(size==32){
+                return i;
+            }
+            continue;
+        }
+        if(i==6){
+            if(size>((1<<5)*32)){
+                return i;
+            }
+            continue;
+        }
+        if( size>(32*(1<<(i-1))) &&  size<=(32*(1<<(i))) ){
+            return i;
+        }
+    }
+    return -1;
+}
+
+void add_to_proper_index(sf_block *block){
+    size_t mask=~(0xf);
+    size_t size=(block->header)&mask;
+    sf_block *curr_segment=&sf_free_list_heads[proper_index(size)];
+    block->body.links.next=curr_segment->body.links.next;
+    block->body.links.prev=curr_segment;
+    (curr_segment->body.links.next)->body.links.prev=block;
     curr_segment->body.links.next=block;
 }
 
