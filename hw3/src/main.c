@@ -2,77 +2,79 @@
 #include "sfmm.h"
 
 int main(int argc, char const *argv[]) {
-
-    size_t sz_u = 200, sz_v = 300, sz_w = 200, sz_x = 500, sz_y = 200, sz_z = 700;
-	void *u = sf_malloc(sz_u);
-	/* void *v = */ sf_malloc(sz_v);
-	void *w = sf_malloc(sz_w);
-	/* void *x = */ sf_malloc(sz_x);
-	void *y = sf_malloc(sz_y);
-	/* void *z = */ sf_malloc(sz_z);
-
-	sf_free(u);
-	sf_free(w);
-	sf_free(y);
-
-    // char * ptr1 = sf_malloc(1);
-    // *(ptr1) = 'A';
+// In the beginning only 8144 is wilderness
+    char * p1 = sf_malloc(500); // Allocate 512 blocks
+    *(p1) = 'A'; // 7632 left
     
-    // sf_show_blocks();   
-    // printf("\n"); 
+    char * p2 = sf_malloc(2000); // Allocate 2016 blocks
+    *(p2) = 'A'; // 5616
     
-    // char * ptr2 = sf_malloc(1);
-    // *(ptr2) = 'B';
-    
-    // sf_show_blocks();    
-    // printf("\n"); 
-    
-    // int * ptr3 = sf_malloc(2020 * sizeof(int));
-    // *(ptr3 + 0) = 1;
-    // *(ptr3 + 1) = 69;
-    // *(ptr3 + 2) = 80;
-    // *(ptr3 + 23) = 69;
+    char * p3 = sf_malloc(5600); // Allocate 5616 blocks
+    *(p3) = 'A'; // 0
 
-    // sf_show_blocks();  
-    // printf("\n"); 
-    
-    // char *ptr4 = sf_malloc(8168);
-    // *(ptr4) = 'Y';
-    
-    // sf_show_blocks();  
-    // printf("\n"); 
-    
-    // int * ptr5 = sf_malloc(9000);
-    // if(ptr5 != NULL)
-    // {
-    //     *(ptr5) = 'A';
-    // }
-    
-    // sf_show_blocks();  
-    // printf("\n"); 
-
-    // int *a=sf_malloc(524288);
-    // if(a!=NULL){
-    //     printf("Not null");
-    // }
-
-    // int *x = sf_malloc(32704);
-    // *(x)=2;
-
-    // sf_show_blocks();
-    // printf("\n");   
-
-    // sf_free(x); 
-
-    // sf_free(ptr1);
-
-    // sf_free(ptr3);
-
+    sf_free(p1); // Should go into index 4 list
     sf_show_blocks();
     printf("\n");
-
-    sf_show_free_lists();  
-    printf("\n"); 
+    
+    p1 = sf_malloc(300); // Allocate 320 blocks
+    *(p1) = 'A'; // 192 left should go into index 3 list
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_show_free_lists();
+    
+    sf_free(p2); // Freeing the 2016 block should go into index 6 list merge with 192, 2208
+    sf_show_blocks();
+    printf("\n");
+    
+    char * p4 = sf_malloc(1200); // Allocate 1216
+    *(p4) = 'A'; // Left 992 should go to index 5 list
+    sf_show_blocks();
+    printf("\n");
+    
+    char * p5 = sf_malloc(472); // Allocate 480
+    *(p5) = 'A'; // Left 512 should go to index 4 list
+    sf_show_blocks();
+    printf("\n");
+    
+    char * p6 = sf_malloc(504); // Allocate 512 used up all the free blocks right now
+    *(p6) = 'A'; // Left 0
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_free(p3); // Then free the last block in the heap which will result in wilderness with no merging
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_free(p1); // Freeing the first block in the heap, should no merge with prologue and be placed in index 4
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_free(p5); // Freeing the 480 block in the heap, which should also go into index 4
+    sf_show_blocks();
+    printf("\n");
+    
+    char * p7 = sf_malloc(500); // Allocating 512 block
+    *(p7) = 'A';
+    char * p8 = sf_malloc(500); // Allocating 512 block
+    *(p8) = 'A';
+    char * p9 = sf_malloc(500); // Allocating 512 block
+    *(p9) = 'A';
+    
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_free(p7);
+    sf_free(p9); // Should add 1 512 block into list 4 and the other one should merge with wilderness
+    sf_show_blocks();
+    printf("\n\n");
+    
+    char * p10 = sf_malloc(200); // Allocate 208 block should take from list 4, and place the remaining into list 4
+    *(p10) = 'A';
+    sf_show_blocks();
+    printf("\n");
+    
+    sf_show_free_lists();
 
     return EXIT_SUCCESS;
 }

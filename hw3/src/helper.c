@@ -41,7 +41,7 @@ void *coalesce(void *bp){
     size_t next_alloc = GET_ALLOC(NEXT_BLKP(bp));
     size_t size = GET_SIZE(bp);
     if(prev_alloc && next_alloc){
-        add_block(bp);
+        add_to_proper_index(bp);
         return bp;
     }else if(prev_alloc && !(next_alloc)){
         remove_block(NEXT_BLKP(bp));
@@ -60,9 +60,9 @@ void *coalesce(void *bp){
         size+=GET_SIZE(PREV_BLKP(bp-8))+ GET_SIZE(NEXT_BLKP(bp-8));
         bp=PREV_BLKP(bp-8);
         ((sf_block*)(bp))->header=PACK(size,0);
-        ((sf_block*)(bp+size-8))->header=PACK(size,0);
+        ((sf_block*)(FTRP(bp-8)))->header=PACK(size,0);
     }
-    add_block(bp);
+    add_to_proper_index(bp);
     return bp;
 }
 
@@ -90,22 +90,13 @@ void *init_extended_heap(size_t size,void *block){
     return new_header;
 }
 
-//Find free_region for malloc 
-void *find_free_region(){
-    void *hp=sf_mem_start()+8;
-    while(GET_ALLOC(hp)){
-        hp=NEXT_BLKP(hp);
-    }
-    return hp;
-}
-
 
 //Place allocated block into heap 
 void *place_block(void* block,size_t size){
     size_t mask=~(0xf);
     size_t header_size=(((sf_block*)(block))->header&mask);
+    void *curr_free_block=find_segment(size);
     remove_block(block);
-    void *curr_free_block=find_free_region();
     if(header_size-size>=32){
         //Splitting block 
         //Allocated header
@@ -114,8 +105,8 @@ void *place_block(void* block,size_t size){
         //Split free block header 
         ((sf_block*)(block))->header=PACK(header_size-size,0)|0x2;
         //Split free block footer
-        ((sf_block*)(sf_mem_end()-16))->header=PACK(header_size-size,0)|0x2;
-        add_block(block);
+        ((sf_block*)(FTRP(block)))->header=PACK(header_size-size,0)|0x2;
+        add_to_proper_index(block);
         return curr_free_block;
     }else{
         //No splitting 
@@ -131,41 +122,11 @@ void *find_segment(size_t size){
     void* bp;
     size_t mask=~(0xf);
     for(int i=0;i<NUM_FREE_LISTS;i++){
-        if(i==0){
-            if(size==32){
-                bp=&sf_free_list_heads[i];
-                for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
-                    if(((((sf_block *)(bp))->header)&mask)>=size && !(GET_ALLOC(bp)) ){
-                        return bp;
-                    }
-                }
+        bp=&sf_free_list_heads[i];
+        for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
+            if(((((sf_block *)(bp))->header)&mask)>=size){
+                    return bp;
             }
-        }
-        if(i==6){
-            if(size>(1<<5)*32){
-                bp=&sf_free_list_heads[i];
-                for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
-                    if(((((sf_block *)(bp))->header)&mask)>=size && !(GET_ALLOC(bp)) ){
-                        return bp;
-                    }
-                }
-            }
-        }
-        if(i==7){
-            bp=&sf_free_list_heads[i];
-                for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
-                    if(((((sf_block *)(bp))->header)&mask)>=size && !(GET_ALLOC(bp)) ){
-                        return bp;
-                    }
-                }
-        }
-        if(size>(32*(1<<(i-1))) &&  size<=(32*(1<<(i))) ){
-            bp=&sf_free_list_heads[i];
-                for(bp=((sf_block*)(bp))->body.links.next;((((sf_block *)(bp))->header)&mask)>0;bp=((sf_block*)(bp))->body.links.next){
-                    if(((((sf_block *)(bp))->header)&mask)>=size){
-                        return bp;
-                    }
-                }
         }
     }
     return NULL;
@@ -235,18 +196,6 @@ void remove_block(sf_block *block){
     block->body.links.prev=NULL;
 }
 
-//Add to free_list based on avaliability 
-void add_block(sf_block *block){
-    size_t mask=~(0xf);
-    size_t size=(block->header)&mask;
-    sf_block *curr_segment=&sf_free_list_heads[segment_index(size)];
-    //Last block in free_list
-    curr_segment=curr_segment->body.links.prev;
-    block->body.links.next=curr_segment->body.links.next;
-    block->body.links.prev=curr_segment;
-    curr_segment->body.links.next->body.links.prev=block;
-    curr_segment->body.links.next=block;
-}
 
 int proper_index(size_t size){
     for(int i=0;i<NUM_FREE_LISTS-1;i++){

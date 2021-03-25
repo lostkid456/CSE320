@@ -24,8 +24,6 @@ void *coalesce(void *bp);
 
 void *init_extended_heap(size_t size,void *block);
 
-void *find_free_region();
-
 void* place_block(void* block,size_t size);
 
 void *find_segment(size_t size);
@@ -34,10 +32,10 @@ int segment_index(size_t size);
 
 void remove_block(sf_block *block);
 
-void add_block(sf_block *block);
-
 int proper_index(size_t size);
 
 void add_to_proper_index(sf_block *block);
+
+
 
 #endif

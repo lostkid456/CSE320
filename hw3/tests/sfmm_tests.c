@@ -125,57 +125,57 @@ Test(sfmm_basecode_suite, freelist, .timeout = TEST_TIMEOUT) {
                      i, bp, (char *)y - 8);
 }
 
-// Test(sfmm_basecode_suite, realloc_larger_block, .timeout = TEST_TIMEOUT) {
-//         size_t sz_x = sizeof(int), sz_y = 10, sz_x1 = sizeof(int) * 20;
-// 	void *x = sf_malloc(sz_x);
-// 	/* void *y = */ sf_malloc(sz_y);
-// 	x = sf_realloc(x, sz_x1);
+Test(sfmm_basecode_suite, realloc_larger_block, .timeout = TEST_TIMEOUT) {
+        size_t sz_x = sizeof(int), sz_y = 10, sz_x1 = sizeof(int) * 20;
+	void *x = sf_malloc(sz_x);
+	/* void *y = */ sf_malloc(sz_y);
+	x = sf_realloc(x, sz_x1);
 
-// 	cr_assert_not_null(x, "x is NULL!");
-// 	sf_block *bp = (sf_block *)((char *)x - 8);
-// 	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
-// 	cr_assert((bp->header & ~0xf) == 96,
-// 		  "Realloc'ed block size (0x%ld) not what was expected (0x%ld)!",
-// 		  bp->header & ~0xf, 96);
+	cr_assert_not_null(x, "x is NULL!");
+	sf_block *bp = (sf_block *)((char *)x - 8);
+	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
+	cr_assert((bp->header & ~0xf) == 96,
+		  "Realloc'ed block size (0x%ld) not what was expected (0x%ld)!",
+		  bp->header & ~0xf, 96);
 
-// 	assert_free_block_count(0, 2);
-// 	assert_free_block_count(32, 1);
-// 	assert_free_block_count(7984, 1);
-// }
+	assert_free_block_count(0, 2);
+	assert_free_block_count(32, 1);
+	assert_free_block_count(7984, 1);
+}
 
-// Test(sfmm_basecode_suite, realloc_smaller_block_splinter, .timeout = TEST_TIMEOUT) {
-//         size_t sz_x = 80, sz_y = 64;
-// 	void *x = sf_malloc(sz_x);
-// 	void *y = sf_realloc(x, sz_y);
+Test(sfmm_basecode_suite, realloc_smaller_block_splinter, .timeout = TEST_TIMEOUT) {
+        size_t sz_x = 80, sz_y = 64;
+	void *x = sf_malloc(sz_x);
+	void *y = sf_realloc(x, sz_y);
 
-// 	cr_assert_not_null(y, "y is NULL!");
-// 	cr_assert(x == y, "Payload addresses are different!");
+	cr_assert_not_null(y, "y is NULL!");
+	cr_assert(x == y, "Payload addresses are different!");
 
-// 	sf_block *bp = (sf_block *)((char *)x - 8);
-// 	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
-// 	cr_assert((bp->header & ~0xf) == 96, "Block size not what was expected!");
+	sf_block *bp = (sf_block *)((char *)x - 8);
+	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
+	cr_assert((bp->header & ~0xf) == 96, "Block size not what was expected!");
 
-// 	// There should be only one free block.
-// 	assert_free_block_count(0, 1);
-// 	assert_free_block_count(8048, 1);
-// }
+	// There should be only one free block.
+	assert_free_block_count(0, 1);
+	assert_free_block_count(8048, 1);
+}
 
-// Test(sfmm_basecode_suite, realloc_smaller_block_free_block, .timeout = TEST_TIMEOUT) {
-//         size_t sz_x = 64, sz_y = 8;
-// 	void *x = sf_malloc(sz_x);
-// 	void *y = sf_realloc(x, sz_y);
+Test(sfmm_basecode_suite, realloc_smaller_block_free_block, .timeout = TEST_TIMEOUT) {
+        size_t sz_x = 64, sz_y = 8;
+	void *x = sf_malloc(sz_x);
+	void *y = sf_realloc(x, sz_y);
 
-// 	cr_assert_not_null(y, "y is NULL!");
+	cr_assert_not_null(y, "y is NULL!");
 
-// 	sf_block *bp = (sf_block *)((char *)x - 8);
-// 	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
-// 	cr_assert((bp->header & ~0xf) == 32, "Realloc'ed block size not what was expected!");
+	sf_block *bp = (sf_block *)((char *)x - 8);
+	cr_assert(bp->header & 0x1, "Allocated bit is not set!");
+	cr_assert((bp->header & ~0xf) == 32, "Realloc'ed block size not what was expected!");
 
-// 	// After realloc'ing x, we can return a block of size 48
-// 	// to the freelist.  This block will go into the main freelist and be coalesced.
-// 	assert_free_block_count(0, 1);
-// 	assert_free_block_count(8112, 1);
-// }
+	// After realloc'ing x, we can return a block of size 48
+	// to the freelist.  This block will go into the main freelist and be coalesced.
+	assert_free_block_count(0, 1);
+	assert_free_block_count(8112, 1);
+}
 //############################################
 //STUDENT UNIT TESTS SHOULD BE WRITTEN BELOW
 //DO NOT DELETE THESE COMMENTS
