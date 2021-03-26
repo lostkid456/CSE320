@@ -211,25 +211,25 @@ Test(sfmm_basecode_suite,test_of_multiple_things, .timeout=TEST_TIMEOUT){
     *(ptr3) = 'A';
 	ptr2 = sf_realloc(ptr2, 500);
 	ptr3 = sf_realloc(ptr3, 12);
-	char * ptr4 = sf_malloc(7000); // Allocate 7008 bytes 
-    *(ptr4) = 'A'; // Should only have 48 bytes left
+	char * ptr4 = sf_malloc(7000);  
+    *(ptr4) = 'A'; 
 	ptr3 = sf_realloc(ptr3, 10);
-	char * ptr5 = sf_realloc(ptr2, 200); // Reallocing with merging
+	char * ptr5 = sf_realloc(ptr2, 200); 
     *(ptr5) = 'A';
-	char * ptr6 = sf_realloc(ptr4, 2300); //Reallocing with merging with the wilderness
+	char * ptr6 = sf_realloc(ptr4, 2300); 
     *(ptr6) = 'A';
 	assert_free_block_count(432,1);
 	assert_free_block_count(4736,1);
 }
 
-Test(sfmm_basecode_suite,test_smaller_realloc,.timeout=TEST_TIMEOUT){
-	size_t sz_x = 64, sz_y = 8;
+Test(sfmm_basecode_suite,test_larger_realloc,.timeout=TEST_TIMEOUT){
+	size_t sz_x = 64, sz_y = 80;
 	int *x = sf_malloc(sz_x);
 	int *y = sf_realloc(x, sz_y);
 	*(y)=5;
-	*(y+32)=10;
+	*(y+80)=10;
     cr_assert(*y==5,"Unable to allocate after realloc correctly");
-	cr_assert(*(y+32)==10,"Unable to allocate after realloc properly");
+	cr_assert(*(y+80)==10,"Unable to allocate after realloc properly");
 }
 
 Test(sfmm_basecode_suite,no_free_avaliable,.timeout=TEST_TIMEOUT){
