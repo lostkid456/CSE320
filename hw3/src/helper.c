@@ -46,8 +46,8 @@ void *coalesce(void *bp){
     }else if(prev_alloc && !(next_alloc)){
         remove_block(NEXT_BLKP(bp));
         size+=GET_SIZE(NEXT_BLKP(bp));
-        ((sf_block*)(bp))->header=PACK(size,0);
-        ((sf_block*)(bp+size-8))->header=PACK(size,0);
+        ((sf_block*)(bp))->header=PACK(size,0)|0x2;
+        ((sf_block*)(bp+size-8))->header=PACK(size,0)|0x2;
     }else if(!(prev_alloc) && next_alloc){
         remove_block(PREV_BLKP(bp-8));
         size+=GET_SIZE(PREV_BLKP(bp-8));
@@ -56,11 +56,11 @@ void *coalesce(void *bp){
         ((sf_block*)(bp+size-8))->header=PACK(size,0);
     }else{
         remove_block(PREV_BLKP(bp-8));
-        remove_block(NEXT_BLKP(bp-8));
-        size+=GET_SIZE(PREV_BLKP(bp-8))+ GET_SIZE(NEXT_BLKP(bp-8));
+        remove_block(NEXT_BLKP(bp));
+        size+=GET_SIZE(PREV_BLKP(bp-8))+ GET_SIZE(NEXT_BLKP(bp));
         bp=PREV_BLKP(bp-8);
-        ((sf_block*)(bp))->header=PACK(size,0);
-        ((sf_block*)(FTRP(bp-8)))->header=PACK(size,0);
+        ((sf_block*)(bp))->header=PACK(size,0)|0x2;
+        ((sf_block*)(FTRP(bp)))->header=PACK(size,0)|0x2;
     }
     add_to_proper_index(bp);
     return bp;

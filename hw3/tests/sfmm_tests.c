@@ -176,15 +176,70 @@ Test(sfmm_basecode_suite, realloc_smaller_block_free_block, .timeout = TEST_TIME
 	assert_free_block_count(0, 1);
 	assert_free_block_count(8112, 1);
 }
+
 //############################################
 //STUDENT UNIT TESTS SHOULD BE WRITTEN BELOW
 //DO NOT DELETE THESE COMMENTS
 //############################################
 
 Test(sfmm_basecode_suite ,memalign_test, .timeout=TEST_TIMEOUT){
+	size_t sz_x = 50, sz_y = 128,sz_u = 32, sz_v = 32;
+	void *y=sf_memalign(sz_x,sz_y);
+	void *x=sf_memalign(sz_u,sz_v);
 
+	cr_assert_not_null(y, "y is NULL!");
+	cr_assert_not_null(x, "x is NULL!");
+
+	assert_free_block_count(7968,1);
+	assert_free_block_count(64,1);
 }
 
-Test(sfmm_basecode_suite,invalid_args_test, .timeout=TEST_TIMEOUT){
-	
+Test(sfmm_basecode_suite,realloc_null_test, .timeout=TEST_TIMEOUT){
+	sf_errno=0;
+	void *x=NULL;
+	void *y=sf_realloc(x,20);
+	cr_assert_null(y,"Should be NULL");
+	cr_assert(sf_errno=EINVAL, "Errno set not set to EINVAL");
+}
+
+Test(sfmm_basecode_suite,test_of_multiple_things, .timeout=TEST_TIMEOUT){
+	char * ptr1 = sf_malloc(50 * sizeof(double));
+    *(ptr1) = 'A';
+	char * ptr2 = sf_malloc(78 * sizeof(double));
+    *(ptr2) = 'A';
+	char * ptr3 = sf_malloc(1 * sizeof(double));
+    *(ptr3) = 'A';
+	ptr2 = sf_realloc(ptr2, 500);
+	ptr3 = sf_realloc(ptr3, 12);
+	char * ptr4 = sf_malloc(7000); // Allocate 7008 bytes 
+    *(ptr4) = 'A'; // Should only have 48 bytes left
+	ptr3 = sf_realloc(ptr3, 10);
+	char * ptr5 = sf_realloc(ptr2, 200); // Reallocing with merging
+    *(ptr5) = 'A';
+	char * ptr6 = sf_realloc(ptr4, 2300); //Reallocing with merging with the wilderness
+    *(ptr6) = 'A';
+	assert_free_block_count(432,1);
+	assert_free_block_count(4736,1);
+}
+
+Test(sfmm_basecode_suite,test_smaller_realloc,.timeout=TEST_TIMEOUT){
+	size_t sz_x = 64, sz_y = 8;
+	int *x = sf_malloc(sz_x);
+	int *y = sf_realloc(x, sz_y);
+	*(y)=5;
+	*(y+32)=10;
+    cr_assert(*y==5,"Unable to allocate after realloc correctly");
+	cr_assert(*(y+32)==10,"Unable to allocate after realloc properly");
+}
+
+Test(sfmm_basecode_suite,no_free_avaliable,.timeout=TEST_TIMEOUT){
+	char * p1 = sf_malloc(500); // Allocate 512 blocks
+    *(p1) = 'A'; // 7632 left
+    
+    char * p2 = sf_malloc(2000); // Allocate 2016 blocks
+    *(p2) = 'A'; // 5616
+    
+    char * p3 = sf_malloc(5600); // Allocate 5616 blocks
+    *(p3) = 'A'; // 0
+	assert_free_block_count(0,0);
 }
