@@ -48,7 +48,7 @@ void sf_free(void *pp) {
     size_t bsize=GET_SIZE(pp-8);
     size_t allocator=GET_ALLOC(pp-8);
     sf_block* next_block=NEXT_BLKP(pp-8);
-    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))){
+    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))||((unsigned long)(pp))%16){
         abort();
     }
     ((sf_block*)(NEXT_BLKP(pp-8)))->header=((sf_block*)(NEXT_BLKP(pp-8)))->header&(~0x2);
@@ -66,7 +66,7 @@ void *sf_realloc(void *pp, size_t rsize) {
     sf_block* next_block=NEXT_BLKP(pp-8);
     void *new_ptr;
     //Same checking conditions as free 
-    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))){
+    if(pp==NULL||(bsize%16)||bsize<32||!(allocator)||((unsigned long)sf_mem_end()<(unsigned long)(next_block))||((unsigned long)(pp))%16){
         sf_errno=22;
         return NULL;
     }
@@ -103,12 +103,66 @@ void *sf_realloc(void *pp, size_t rsize) {
 }
 
 void *sf_memalign(size_t size, size_t align) {
-    if(size==0){
-        return NULL;
-    }
-    if(align<size){
+    if(align<32 || ispowerof2(align)){
         sf_errno=22;
         return NULL;
     }
-    return NULL;
+    if(size==0){
+        return NULL;
+    }
+    if(size<=24){
+        size=32;
+    }else{
+        size = (size + 8) % 16 == 0 ? size + 8 : (16 - ((size + 8) % 16)) + size + 8;
+    }
+    void *huge_block=sf_malloc(size+align+32+8);
+    size_t huge_block_size=GET_SIZE(huge_block-8);
+    sf_show_blocks();
+    printf("\n");
+    if(((unsigned long)(huge_block)) % (unsigned long)(align)){
+        size_t realignment= align - ((unsigned long)(huge_block)%align);
+        if(realignment==0){
+            if(huge_block_size-size>=32){
+                size_t osize=GET_SIZE(huge_block);
+                ((sf_block*)(huge_block))->header=PACK(size,1);
+                void *n_huge_block=NEXT_BLKP(huge_block);
+                ((sf_block*)(n_huge_block))->header=PACK(osize-size,0)|0x2;
+                ((sf_block*)(FTRP(n_huge_block)))->header=PACK(osize-size,0)|0x2;
+                coalesce(n_huge_block);
+                sf_show_blocks();
+                sf_show_free_lists();
+                printf("\n");
+                return huge_block+8;
+            }else{
+                return huge_block;
+            }
+        }else{
+            while(realignment<32){
+                realignment+=align;
+            }
+            ((sf_block*)(huge_block-8))->header=PACK(realignment,0);
+            ((sf_block*)(FTRP(huge_block-8)))->header=PACK(realignment,0);
+            ((sf_block*)(NEXT_BLKP(huge_block-8)))->header=PACK(huge_block_size-realignment,1);
+            coalesce(huge_block-8);
+            sf_show_free_lists();
+            huge_block=NEXT_BLKP(huge_block-8);
+            sf_show_blocks();
+            printf("\n");
+            if(GET_SIZE(huge_block)-size>=32){
+                size_t osize=GET_SIZE(huge_block);
+                ((sf_block*)(huge_block))->header=PACK(size,1);
+                void *n_huge_block=NEXT_BLKP(huge_block);
+                ((sf_block*)(n_huge_block))->header=PACK(osize-size,0)|0x2;
+                ((sf_block*)(FTRP(n_huge_block)))->header=PACK(osize-size,0)|0x2;
+                coalesce(n_huge_block);
+                sf_show_blocks();
+                sf_show_free_lists();
+                printf("\n");
+                return huge_block+8;
+            }else{
+                return huge_block+8;
+            }
+        }
+    }
+    return huge_block;
 }

@@ -36,6 +36,7 @@ int proper_index(size_t size);
 
 void add_to_proper_index(sf_block *block);
 
+int ispowerof2(size_t size);
 
 
 #endif

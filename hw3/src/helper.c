@@ -228,3 +228,16 @@ void add_to_proper_index(sf_block *block){
     curr_segment->body.links.next=block;
 }
 
+int ispowerof2(size_t size){
+    int a=1;
+    while(a<size){
+        a=a<<1;
+    }
+    if(a!=size){
+        return 1;
+    }else{
+        return 0;
+    }
+    return -1;
+}
+

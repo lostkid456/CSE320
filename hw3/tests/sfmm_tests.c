@@ -180,3 +180,11 @@ Test(sfmm_basecode_suite, realloc_smaller_block_free_block, .timeout = TEST_TIME
 //STUDENT UNIT TESTS SHOULD BE WRITTEN BELOW
 //DO NOT DELETE THESE COMMENTS
 //############################################
+
+Test(sfmm_basecode_suite ,memalign_test, .timeout=TEST_TIMEOUT){
+
+}
+
+Test(sfmm_basecode_suite,invalid_args_test, .timeout=TEST_TIMEOUT){
+	
+}
