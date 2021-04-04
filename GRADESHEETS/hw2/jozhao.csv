@@ -1,0 +1,34 @@
+Graded Commit:2528dd3b5558058fe8dc8eb319936861ab100aee
+
+TEST NAME, POINTS,OUT OF
+base_suite/garbage_input,1,1,
+base_suite/quick,1,1,
+base_suite/variations,0,1,1 assertion(s) failed.: tests/test_common.c:119: The output was not what was expected (diff exited with status 1).
+grading_suite/arg_prefix,1,1,
+grading_suite/long_arg,1,1,
+grading_suite/no_new_move,1,1,
+grading_suite/omit_break,1,1,
+grading_suite/omit_string_init,1,1,
+grading_suite/quick_2,1,1,
+grading_suite/quick_3,1,1,
+grading_suite/quick_4,1,1,
+grading_suite/quick_d,1,1,
+grading_suite/quick_location,1,1,
+grading_suite/segfault,1,1,
+grading_suite/sizeof_error,1,1,
+valgrind_suite/arg_prefix,1,1,
+valgrind_suite/garbage_input,0,1,1 assertion(s) failed.: tests/test_common.c:185: Valgrind reported errors -- see tests.out/valgrind_garbage_input.err
+valgrind_suite/leak,0,1,1 assertion(s) failed.: tests/test_common.c:119: The output was not what was expected (diff exited with status 1).
+valgrind_suite/leak_1,1,1,
+valgrind_suite/long_arg,1,1,
+valgrind_suite/omit_break,1,1,
+valgrind_suite/quick,1,1,
+valgrind_suite/quick_2,1,1,
+valgrind_suite/quick_3,1,1,
+valgrind_suite/quick_4,1,1,
+valgrind_suite/quick_d,1,1,
+valgrind_suite/quick_location,1,1,
+valgrind_suite/segfault,1,1,
+valgrind_suite/uninitialized,1,1,
+valgrind_suite/variations,0,1,1 assertion(s) failed.: tests/test_common.c:119: The output was not what was expected (diff exited with status 1).
+total,26,30

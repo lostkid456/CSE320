@@ -1,0 +1,394 @@
+[----] Criterion v2.3.3
+[====] Running 3 tests from base_suite:
+[RUN ] base_suite::garbage_input
+setup(rm -f tests.out/garbage_input.out tests.out/garbage_input.err; rm -fr tests.out/garbage_input; mkdir -p tests.out/garbage_input)
+run(ulimit -t 10;  bin/notation src/main.c > tests.out/garbage_input.out 2> tests.out/garbage_input.err < /dev/null)
+[PASS] base_suite::garbage_input: (0.01s)
+[RUN ] base_suite::quick
+setup(rm -f tests.out/quick.out tests.out/quick.err; rm -fr tests.out/quick; mkdir -p tests.out/quick)
+run(ulimit -t 10;  bin/notation -s rsrc/algebric.ntn > tests.out/quick.out 2> tests.out/quick.err < /dev/null)
+[PASS] base_suite::quick: (0.02s)
+[RUN ] base_suite::variations
+setup(rm -f tests.out/variations.out tests.out/variations.err; rm -fr tests.out/variations; mkdir -p tests.out/variations)
+run(ulimit -t 10;  bin/notation rsrc/boudy.ntn > tests.out/variations.out 2> tests.out/variations.err < /dev/null)
+18c18
+<  13.      ...      Rb8 !?  !?  ~  ~   ]
+---
+>  13.      ...      Rb8 !?  ~   ]
+20c20
+<  15.       g5       f5 !?  !?   [
+---
+>  15.       g5       f5 !?   [
+23,24c23,24
+<  17.      Bd3 ?!  ?!   [
+<  17.      Bh3 !  !  +_  +_   ]
+---
+>  17.      Bd3 ?!   [
+>  17.      Bh3 !  +_   ]
+28c28
+<  20.     Bxf5      Bc8 !  ! 
+---
+>  20.     Bxf5      Bc8 ! 
+30c30
+<  22.      Rg4      Rb8 =~  =~ 
+---
+>  22.      Rg4      Rb8 =~ 
+47,49c47,49
+<  26.      Bc3      Ba3 !  ! 
+<  27.     Bxf6      Rb3 _+  _+  _|_  $end   ]
+<  25.      ...      Ba3 !  ! 
+---
+>  26.      Bc3      Ba3 ! 
+>  27.     Bxf6      Rb3 _+  _|_   ]
+>  25.      ...      Ba3 ! 
+51,53c51,53
+<  26.     Kxa1      Rb8 -+  -+   ]
+<  26.      ...      Rb8 -+  -+ 
+<  27.     Nxe4      Qe7 ??  ??   [
+---
+>  26.      Ka1      Rb8 -+   ]
+>  26.      ...      Rb8 -+ 
+>  27.     Nxe4      Qe7 ??   [
+58,60c58,60
+<  31.     Kxa6     Qxe4 /\  /\  De8a8 -+   ]
+<  28.      Nd6 !  !   [
+<  28.      Ka4     Qxe4 -+  -+   ]
+---
+>  31.     Kxa6     Qxe4 /\  De8a8 -+   ]
+>  28.      Nd6 !   [
+>  28.      Ka4     Qxe4 -+   ]
+63c63
+<  30.      Rh4  [ ^_  $bei 
+---
+>  30.      Rh4  [ ^_ 
+67c67
+<  33.      Qd4 -+  -+   ]
+---
+>  33.      Qd4 -+   ]
+71c71
+<  33.      Qb4 !  !  +-  +-      Rxb4
+---
+>  33.      Qb4 !  +-      Rxb4
+73,75c73,75
+<  35.      Re1      Qd8 []  [] 
+<  36.       c3 !  !        a5
+<  37.      Bc5 ||  ||   White won
+---
+>  35.      Re1      Qd8 [] 
+>  36.       c3 !        a5
+>  37.      Bc5 ||   White won
+[----] tests/test_common.c:119: Assertion failed: The output was not what was expected (diff exited with status 1).
+[FAIL] base_suite::variations: (0.02s)
+[====] Running 12 tests from grading_suite:
+[RUN ] grading_suite::arg_prefix
+setup(rm -f tests.out/arg_prefix.out tests.out/arg_prefix.err; rm -fr tests.out/arg_prefix; mkdir -p tests.out/arg_prefix)
+run(ulimit -t 10;  bin/notation --long rsrc/algebric.ntn > tests.out/arg_prefix.out 2> tests.out/arg_prefix.err < /dev/null)
+[PASS] grading_suite::arg_prefix: (0.03s)
+[RUN ] grading_suite::long_arg
+setup(rm -f tests.out/long_arg.out tests.out/long_arg.err; rm -fr tests.out/long_arg; mkdir -p tests.out/long_arg)
+run(ulimit -t 10;  bin/notation --long-algebraic rsrc/algebric.ntn > tests.out/long_arg.out 2> tests.out/long_arg.err < /dev/null)
+[PASS] grading_suite::long_arg: (0.03s)
+[RUN ] grading_suite::no_new_move
+setup(rm -f tests.out/no_new_move.out tests.out/no_new_move.err; rm -fr tests.out/no_new_move; mkdir -p tests.out/no_new_move)
+run(ulimit -t 10; valgrind --leak-check=no --undef-value-errors=yes --error-exitcode=37 bin/notation rsrc/algebric.ntn > tests.out/no_new_move.out 2> tests.out/no_new_move.err < /dev/null)
+[PASS] grading_suite::no_new_move: (1.20s)
+[RUN ] grading_suite::omit_break
+setup(rm -f tests.out/omit_break.out tests.out/omit_break.err; rm -fr tests.out/omit_break; mkdir -p tests.out/omit_break)
+run(ulimit -t 10;  bin/notation  -o ./tests.out/omit_break.log rsrc/algebric.ntn > tests.out/omit_break.out 2> tests.out/omit_break.err < /dev/null)
+[PASS] grading_suite::omit_break: (0.01s)
+[RUN ] grading_suite::omit_string_init
+setup(rm -f tests.out/omit_string_init.out tests.out/omit_string_init.err; rm -fr tests.out/omit_string_init; mkdir -p tests.out/omit_string_init)
+run(ulimit -t 10;  bin/notation rsrc/boudy.ntn > tests.out/omit_string_init.out 2> tests.out/omit_string_init.err < /dev/null)
+18c18
+<  13.      ...      Rb8 !?  !?  ~  ~   ]
+---
+>  13.      ...      Rb8 !?  ~   ]
+20c20
+<  15.       g5       f5 !?  !?   [
+---
+>  15.       g5       f5 !?   [
+23,24c23,24
+<  17.      Bd3 ?!  ?!   [
+<  17.      Bh3 !  !  +_  +_   ]
+---
+>  17.      Bd3 ?!   [
+>  17.      Bh3 !  +_   ]
+28c28
+<  20.     Bxf5      Bc8 !  ! 
+---
+>  20.     Bxf5      Bc8 !
+30c30
+<  22.      Rg4      Rb8 =~  =~ 
+---
+>  22.      Rg4      Rb8 =~
+47,49c47,49
+<  26.      Bc3      Ba3 !  ! 
+<  27.     Bxf6      Rb3 _+  _+  _|_  $end   ]
+<  25.      ...      Ba3 !  ! 
+---
+>  26.      Bc3      Ba3 !
+>  27.     Bxf6      Rb3 _+  _|_   ]
+>  25.      ...      Ba3 !
+51,53c51,53
+<  26.     Kxa1      Rb8 -+  -+   ]
+<  26.      ...      Rb8 -+  -+ 
+<  27.     Nxe4      Qe7 ??  ??   [
+---
+>  26.      Ka1      Rb8 -+   ]
+>  26.      ...      Rb8 -+
+>  27.     Nxe4      Qe7 ??   [
+58,60c58,60
+<  31.     Kxa6     Qxe4 /\  /\  De8a8 -+   ]
+<  28.      Nd6 !  !   [
+<  28.      Ka4     Qxe4 -+  -+   ]
+---
+>  31.     Kxa6     Qxe4 /\  De8a8 -+   ]
+>  28.      Nd6 !   [
+>  28.      Ka4     Qxe4 -+   ]
+63c63
+<  30.      Rh4  [ ^_  $bei 
+---
+>  30.      Rh4  [ ^_
+67c67
+<  33.      Qd4 -+  -+   ]
+---
+>  33.      Qd4 -+   ]
+71c71
+<  33.      Qb4 !  !  +-  +-      Rxb4
+---
+>  33.      Qb4 !  +-      Rxb4
+73,75c73,75
+<  35.      Re1      Qd8 []  [] 
+<  36.       c3 !  !        a5
+<  37.      Bc5 ||  ||   White won
+---
+>  35.      Re1      Qd8 []
+>  36.       c3 !        a5
+>  37.      Bc5 ||   White won
+[PASS] grading_suite::omit_string_init: (0.02s)
+[RUN ] grading_suite::quick_2
+setup(rm -f tests.out/quick_2.out tests.out/quick_2.err; rm -fr tests.out/quick_2; mkdir -p tests.out/quick_2)
+run(ulimit -t 10;  bin/notation -a rsrc/algebric.ntn > tests.out/quick_2.out 2> tests.out/quick_2.err < /dev/null)
+[PASS] grading_suite::quick_2: (0.03s)
+[RUN ] grading_suite::quick_3
+setup(rm -f tests.out/quick_3.out tests.out/quick_3.err; rm -fr tests.out/quick_3; mkdir -p tests.out/quick_3)
+run(ulimit -t 10;  bin/notation -t french rsrc/algebric.ntn > tests.out/quick_3.out 2> tests.out/quick_3.err < /dev/null)
+[PASS] grading_suite::quick_3: (0.03s)
+[RUN ] grading_suite::quick_4
+setup(rm -f tests.out/quick_4.out tests.out/quick_4.err; rm -fr tests.out/quick_4; mkdir -p tests.out/quick_4)
+run(ulimit -t 10;  bin/notation -e 10 rsrc/algebric.ntn > tests.out/quick_4.out 2> tests.out/quick_4.err < /dev/null)
+[PASS] grading_suite::quick_4: (0.02s)
+[RUN ] grading_suite::quick_d
+setup(rm -f tests.out/quick_d.out tests.out/quick_d.err; rm -fr tests.out/quick_d; mkdir -p tests.out/quick_d)
+run(ulimit -t 10;  bin/notation -d tex rsrc/algebric.ntn > tests.out/quick_d.out 2> tests.out/quick_d.err < /dev/null)
+[PASS] grading_suite::quick_d: (0.03s)
+[RUN ] grading_suite::quick_location
+setup(rm -f tests.out/quick_location.out tests.out/quick_location.err; rm -fr tests.out/quick_location; mkdir -p tests.out/quick_location)
+run(ulimit -t 10;  bin/notation rsrc/algebric.ntn -e 100 > tests.out/quick_location.out 2> tests.out/quick_location.err < /dev/null)
+[PASS] grading_suite::quick_location: (0.02s)
+[RUN ] grading_suite::segfault
+setup(rm -f tests.out/segfault.out tests.out/segfault.err; rm -fr tests.out/segfault; mkdir -p tests.out/segfault)
+run(ulimit -t 10;  bin/notation rsrc/no-moves.ntn > tests.out/segfault.out 2> tests.out/segfault.err < /dev/null)
+[PASS] grading_suite::segfault: (0.03s)
+[RUN ] grading_suite::sizeof_error
+setup(rm -f tests.out/sizeof_error.out tests.out/sizeof_error.err; rm -fr tests.out/sizeof_error; mkdir -p tests.out/sizeof_error)
+run(ulimit -t 10; valgrind --leak-check=full --errors-for-leak-kinds=reachable --undef-value-errors=no --error-exitcode=37 bin/notation rsrc/boudy.ntn > tests.out/sizeof_error.out 2> tests.out/sizeof_error.err < /dev/null)
+[PASS] grading_suite::sizeof_error: (1.12s)
+[====] Running 15 tests from valgrind_suite:
+[RUN ] valgrind_suite::arg_prefix
+setup(rm -f tests.out/valgrind_arg_prefix.out tests.out/valgrind_arg_prefix.err; rm -fr tests.out/valgrind_arg_prefix; mkdir -p tests.out/valgrind_arg_prefix)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation --long rsrc/algebric.ntn > tests.out/valgrind_arg_prefix.out 2> tests.out/valgrind_arg_prefix.err < /dev/null)
+[PASS] valgrind_suite::arg_prefix: (1.21s)
+[RUN ] valgrind_suite::garbage_input
+setup(rm -f tests.out/valgrind_garbage_input.out tests.out/valgrind_garbage_input.err; rm -fr tests.out/valgrind_garbage_input; mkdir -p tests.out/valgrind_garbage_input)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation src/main.c > tests.out/valgrind_garbage_input.out 2> tests.out/valgrind_garbage_input.err < /dev/null)
+[----] tests/test_common.c:185: Assertion failed: Valgrind reported errors -- see tests.out/valgrind_garbage_input.err
+[FAIL] valgrind_suite::garbage_input: (1.12s)
+[RUN ] valgrind_suite::leak
+setup(rm -f tests.out/valgrind_leak.out tests.out/valgrind_leak.err; rm -fr tests.out/valgrind_leak; mkdir -p tests.out/valgrind_leak)
+run(ulimit -t 10; valgrind --leak-check=full --undef-value-errors=no --error-exitcode=37 bin/notation rsrc/boudy.ntn > tests.out/valgrind_leak.out 2> tests.out/valgrind_leak.err < /dev/null)
+18c18
+<  13.      ...      Rb8 !?  !?  ~  ~   ]
+---
+>  13.      ...      Rb8 !?  ~   ]
+20c20
+<  15.       g5       f5 !?  !?   [
+---
+>  15.       g5       f5 !?   [
+23,24c23,24
+<  17.      Bd3 ?!  ?!   [
+<  17.      Bh3 !  !  +_  +_   ]
+---
+>  17.      Bd3 ?!   [
+>  17.      Bh3 !  +_   ]
+28c28
+<  20.     Bxf5      Bc8 !  ! 
+---
+>  20.     Bxf5      Bc8 ! 
+30c30
+<  22.      Rg4      Rb8 =~  =~ 
+---
+>  22.      Rg4      Rb8 =~ 
+47,49c47,49
+<  26.      Bc3      Ba3 !  ! 
+<  27.     Bxf6      Rb3 _+  _+  _|_  $end   ]
+<  25.      ...      Ba3 !  ! 
+---
+>  26.      Bc3      Ba3 ! 
+>  27.     Bxf6      Rb3 _+  _|_   ]
+>  25.      ...      Ba3 ! 
+51,53c51,53
+<  26.     Kxa1      Rb8 -+  -+   ]
+<  26.      ...      Rb8 -+  -+ 
+<  27.     Nxe4      Qe7 ??  ??   [
+---
+>  26.      Ka1      Rb8 -+   ]
+>  26.      ...      Rb8 -+ 
+>  27.     Nxe4      Qe7 ??   [
+58,60c58,60
+<  31.     Kxa6     Qxe4 /\  /\  De8a8 -+   ]
+<  28.      Nd6 !  !   [
+<  28.      Ka4     Qxe4 -+  -+   ]
+---
+>  31.     Kxa6     Qxe4 /\  De8a8 -+   ]
+>  28.      Nd6 !   [
+>  28.      Ka4     Qxe4 -+   ]
+63c63
+<  30.      Rh4  [ ^_  $bei 
+---
+>  30.      Rh4  [ ^_ 
+67c67
+<  33.      Qd4 -+  -+   ]
+---
+>  33.      Qd4 -+   ]
+71c71
+<  33.      Qb4 !  !  +-  +-      Rxb4
+---
+>  33.      Qb4 !  +-      Rxb4
+73,75c73,75
+<  35.      Re1      Qd8 []  [] 
+<  36.       c3 !  !        a5
+<  37.      Bc5 ||  ||   White won
+---
+>  35.      Re1      Qd8 [] 
+>  36.       c3 !        a5
+>  37.      Bc5 ||   White won
+[----] tests/test_common.c:119: Assertion failed: The output was not what was expected (diff exited with status 1).
+[FAIL] valgrind_suite::leak: (1.12s)
+[RUN ] valgrind_suite::leak_1
+setup(rm -f tests.out/valgrind_leak_1.out tests.out/valgrind_leak_1.err; rm -fr tests.out/valgrind_leak_1; mkdir -p tests.out/valgrind_leak_1)
+run(ulimit -t 10; valgrind --leak-check=full --errors-for-leak-kinds=definite,indirect,possible,reachable --undef-value-errors=no --error-exitcode=37 bin/notation rsrc/algebric.ntn > tests.out/valgrind_leak_1.out 2> tests.out/valgrind_leak_1.err < /dev/null)
+[PASS] valgrind_suite::leak_1: (1.08s)
+[RUN ] valgrind_suite::long_arg
+setup(rm -f tests.out/valgrind_long_arg.out tests.out/valgrind_long_arg.err; rm -fr tests.out/valgrind_long_arg; mkdir -p tests.out/valgrind_long_arg)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation --long-algebraic rsrc/algebric.ntn > tests.out/valgrind_long_arg.out 2> tests.out/valgrind_long_arg.err < /dev/null)
+[PASS] valgrind_suite::long_arg: (1.21s)
+[RUN ] valgrind_suite::omit_break
+setup(rm -f tests.out/valgrind_omit_break.out tests.out/valgrind_omit_break.err; rm -fr tests.out/valgrind_omit_break; mkdir -p tests.out/valgrind_omit_break)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation  -o ./tests.out/omit_break.log rsrc/algebric.ntn > tests.out/valgrind_omit_break.out 2> tests.out/valgrind_omit_break.err < /dev/null)
+[PASS] valgrind_suite::omit_break: (1.19s)
+[RUN ] valgrind_suite::quick
+setup(rm -f tests.out/valgrind_quick.out tests.out/valgrind_quick.err; rm -fr tests.out/valgrind_quick; mkdir -p tests.out/valgrind_quick)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation -s rsrc/algebric.ntn > tests.out/valgrind_quick.out 2> tests.out/valgrind_quick.err < /dev/null)
+[PASS] valgrind_suite::quick: (1.21s)
+[RUN ] valgrind_suite::quick_2
+setup(rm -f tests.out/valgrind_quick_2.out tests.out/valgrind_quick_2.err; rm -fr tests.out/valgrind_quick_2; mkdir -p tests.out/valgrind_quick_2)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation -a rsrc/algebric.ntn > tests.out/valgrind_quick_2.out 2> tests.out/valgrind_quick_2.err < /dev/null)
+[PASS] valgrind_suite::quick_2: (1.21s)
+[RUN ] valgrind_suite::quick_3
+setup(rm -f tests.out/valgrind_quick_3.out tests.out/valgrind_quick_3.err; rm -fr tests.out/valgrind_quick_3; mkdir -p tests.out/valgrind_quick_3)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation -t french rsrc/algebric.ntn > tests.out/valgrind_quick_3.out 2> tests.out/valgrind_quick_3.err < /dev/null)
+[PASS] valgrind_suite::quick_3: (1.21s)
+[RUN ] valgrind_suite::quick_4
+setup(rm -f tests.out/valgrind_quick_4.out tests.out/valgrind_quick_4.err; rm -fr tests.out/valgrind_quick_4; mkdir -p tests.out/valgrind_quick_4)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation -e 10 rsrc/algebric.ntn > tests.out/valgrind_quick_4.out 2> tests.out/valgrind_quick_4.err < /dev/null)
+[PASS] valgrind_suite::quick_4: (1.20s)
+[RUN ] valgrind_suite::quick_d
+setup(rm -f tests.out/valgrind_quick_d.out tests.out/valgrind_quick_d.err; rm -fr tests.out/valgrind_quick_d; mkdir -p tests.out/valgrind_quick_d)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation -d tex rsrc/algebric.ntn > tests.out/valgrind_quick_d.out 2> tests.out/valgrind_quick_d.err < /dev/null)
+[PASS] valgrind_suite::quick_d: (1.21s)
+[RUN ] valgrind_suite::quick_location
+setup(rm -f tests.out/valgrind_quick_location.out tests.out/valgrind_quick_location.err; rm -fr tests.out/valgrind_quick_location; mkdir -p tests.out/valgrind_quick_location)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation rsrc/algebric.ntn -e 100 > tests.out/valgrind_quick_location.out 2> tests.out/valgrind_quick_location.err < /dev/null)
+[PASS] valgrind_suite::quick_location: (1.22s)
+[RUN ] valgrind_suite::segfault
+setup(rm -f tests.out/valgrind_segfault.out tests.out/valgrind_segfault.err; rm -fr tests.out/valgrind_segfault; mkdir -p tests.out/valgrind_segfault)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation rsrc/no-moves.ntn > tests.out/valgrind_segfault.out 2> tests.out/valgrind_segfault.err < /dev/null)
+[PASS] valgrind_suite::segfault: (1.14s)
+[RUN ] valgrind_suite::uninitialized
+setup(rm -f tests.out/valgrind_uninitialized.out tests.out/valgrind_uninitialized.err; rm -fr tests.out/valgrind_uninitialized; mkdir -p tests.out/valgrind_uninitialized)
+run(ulimit -t 10; valgrind --leak-check=no --undef-value-errors=yes --error-exitcode=37 bin/notation rsrc/algebric.ntn > tests.out/valgrind_uninitialized.out 2> tests.out/valgrind_uninitialized.err < /dev/null)
+[PASS] valgrind_suite::uninitialized: (1.20s)
+[RUN ] valgrind_suite::variations
+setup(rm -f tests.out/valgrind_variations.out tests.out/valgrind_variations.err; rm -fr tests.out/valgrind_variations; mkdir -p tests.out/valgrind_variations)
+run(ulimit -t 10; valgrind --error-exitcode=37 bin/notation rsrc/boudy.ntn > tests.out/valgrind_variations.out 2> tests.out/valgrind_variations.err < /dev/null)
+18c18
+<  13.      ...      Rb8 !?  !?  ~  ~   ]
+---
+>  13.      ...      Rb8 !?  ~   ]
+20c20
+<  15.       g5       f5 !?  !?   [
+---
+>  15.       g5       f5 !?   [
+23,24c23,24
+<  17.      Bd3 ?!  ?!   [
+<  17.      Bh3 !  !  +_  +_   ]
+---
+>  17.      Bd3 ?!   [
+>  17.      Bh3 !  +_   ]
+28c28
+<  20.     Bxf5      Bc8 !  ! 
+---
+>  20.     Bxf5      Bc8 ! 
+30c30
+<  22.      Rg4      Rb8 =~  =~ 
+---
+>  22.      Rg4      Rb8 =~ 
+47,49c47,49
+<  26.      Bc3      Ba3 !  ! 
+<  27.     Bxf6      Rb3 _+  _+  _|_  $end   ]
+<  25.      ...      Ba3 !  ! 
+---
+>  26.      Bc3      Ba3 ! 
+>  27.     Bxf6      Rb3 _+  _|_   ]
+>  25.      ...      Ba3 ! 
+51,53c51,53
+<  26.     Kxa1      Rb8 -+  -+   ]
+<  26.      ...      Rb8 -+  -+ 
+<  27.     Nxe4      Qe7 ??  ??   [
+---
+>  26.      Ka1      Rb8 -+   ]
+>  26.      ...      Rb8 -+ 
+>  27.     Nxe4      Qe7 ??   [
+58,60c58,60
+<  31.     Kxa6     Qxe4 /\  /\  De8a8 -+   ]
+<  28.      Nd6 !  !   [
+<  28.      Ka4     Qxe4 -+  -+   ]
+---
+>  31.     Kxa6     Qxe4 /\  De8a8 -+   ]
+>  28.      Nd6 !   [
+>  28.      Ka4     Qxe4 -+   ]
+63c63
+<  30.      Rh4  [ ^_  $bei 
+---
+>  30.      Rh4  [ ^_ 
+67c67
+<  33.      Qd4 -+  -+   ]
+---
+>  33.      Qd4 -+   ]
+71c71
+<  33.      Qb4 !  !  +-  +-      Rxb4
+---
+>  33.      Qb4 !  +-      Rxb4
+73,75c73,75
+<  35.      Re1      Qd8 []  [] 
+<  36.       c3 !  !        a5
+<  37.      Bc5 ||  ||   White won
+---
+>  35.      Re1      Qd8 [] 
+>  36.       c3 !        a5
+>  37.      Bc5 ||   White won
+[----] tests/test_common.c:119: Assertion failed: The output was not what was expected (diff exited with status 1).
+[FAIL] valgrind_suite::variations: (1.22s)
+[----] Writing xml report in `crit.xml`.
+[====] Synthesis: Tested: 30 | Passing: 26 | Failing: 4 | Crashing: 0 
