@@ -7,9 +7,11 @@
 #include <string.h>
 #include <time.h>
 
-//For forking
+//For forking and signals
 #include <unistd.h>
 #include <sys/types.h>
+#include <fcntl.h>
+#include <signal.h>
 
 #include "imprimer.h"
 #include "sf_readline.h"
@@ -38,6 +40,8 @@ PRINTER *printer_array[MAX_PRINTERS];
 //Array of job pointers
 JOB *job_array[MAX_JOBS];
 
+int parse_inp(FILE *in,FILE *out,char* args);
+
 int new_printer_index(char* name);
 
 int find_printer_index(char *name);
@@ -52,6 +56,6 @@ int is_eligible_printer(JOB *job,PRINTER *printer);
 
 void sig_handler_parent(int signal);
 
-void sig_handler_childe(int signal);
+void sig_handler_child(int signal);
 
 #endif
