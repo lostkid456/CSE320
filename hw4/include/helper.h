@@ -23,6 +23,7 @@ typedef struct printer{
     char* name;
     char *type;
     PRINTER_STATUS status;
+    pid_t pid;
 }PRINTER;
 
 //Define job struct
@@ -33,6 +34,7 @@ typedef struct job{
     PRINTER *eligible_printers[MAX_PRINTERS];
     int eligible;
     char* file;
+    pid_t pid;
 }JOB;
 
 int job_flag;
@@ -42,10 +44,6 @@ PRINTER *printer_array[MAX_PRINTERS];
 
 //Array of job pointers
 JOB *job_array[MAX_JOBS];
-
-pid_t printer_pid_arr[MAX_PRINTERS];
-
-pid_t job_pid_arr[MAX_JOBS];
 
 int parse_inp(FILE *in,FILE *out,char* args);
 
@@ -65,9 +63,15 @@ int printer_from_pid(pid_t pid);
 
 int job_from_pid(pid_t pid);
 
+void pid_to_job(pid_t pid,int index);
+
+void pid_to_printer(pid_t pid,int index);
+
 void sig_handler_parent();
 
 void sig_handler_child(int signal);
+
+void sig2halder(int signal);
 
 int conversion_pipeline(PRINTER *printer, JOB *job);
 

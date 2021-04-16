@@ -332,7 +332,7 @@ int parse_inp(FILE *in,FILE *out,char* args){
                 return 1;
             }
             if(job_array[job_number]->status==JOB_RUNNING){
-                killpg(job_pid_arr[job_number],SIGTERM);
+                killpg(job_array[job_number]->pid,SIGTERM);
                 sf_job_status(job_array[job_number]->id,JOB_ABORTED);
                 update_job_status(JOB_ABORTED,job_number);
                 job_array[job_number]->status=JOB_ABORTED;
@@ -359,7 +359,7 @@ int parse_inp(FILE *in,FILE *out,char* args){
                 return 1;
             }
             if(job_array[job_number]->status==JOB_RUNNING){
-                killpg(job_pid_arr[job_number],SIGSTOP); 
+                killpg(job_array[job_number]->pid,SIGSTOP); 
                 sf_job_status(job_array[job_number]->id,JOB_PAUSED);
                 update_job_status(JOB_PAUSED,job_number);
                 free(args);
@@ -385,7 +385,7 @@ int parse_inp(FILE *in,FILE *out,char* args){
                 return 1;
             }
             if(job_array[job_number]->status==JOB_PAUSED){
-                killpg(job_pid_arr[job_number],SIGCONT); 
+                killpg(job_array[job_number]->pid,SIGCONT); 
                 sf_job_status(job_array[job_number]->id,JOB_RUNNING);
                 update_job_status(JOB_RUNNING,job_number);
                 free(args);
@@ -413,7 +413,7 @@ int parse_inp(FILE *in,FILE *out,char* args){
             int index=find_printer_index(printer_name); 
             if(index!=-1){
                 if(printer_array[index]->status==PRINTER_BUSY){
-                    killpg(printer_pid_arr[index],SIGCONT);
+                    killpg(printer_array[index]->pid,SIGSTOP);
                     sf_printer_status(printer_array[index]->name,PRINTER_DISABLED);
                     update_printer_status(PRINTER_DISABLED,printer_array[index]->name);
                     free(args);
@@ -519,7 +519,7 @@ void update_job_status(JOB_STATUS status,int i){
     }else if(status==JOB_ABORTED){
         job_status_names[i]="aborted";
     }else{
-        job_status_names[i]="deleted";
+        job_status_names[i]=NULL;
     }
 }
 
@@ -546,8 +546,10 @@ int is_eligible_printer(JOB *job,PRINTER *printer){
 
 int printer_from_pid(pid_t pid){
     for(int i=0;i<MAX_PRINTERS;i++){
-        if(printer_pid_arr[i]==pid){
-            return i;
+        if(printer_array[i]!=NULL){
+            if(printer_array[i]->pid==pid){
+                return i;
+            }
         }
     }
     return -1;
@@ -555,46 +557,71 @@ int printer_from_pid(pid_t pid){
 
 int job_from_pid(pid_t pid){
     for(int i=0;i<MAX_JOBS;i++){
-        if(job_pid_arr[i]==pid){
-            return i;
+        if(job_array[i]!=NULL){
+            if(job_array[i]->pid==pid){
+                return i;
+            }   
         }
     }
     return -1;
 }
 
+//Callback function
 void sig_handler_parent(){
     int flag;
     if(job_flag==1){
         pid_t return_val;
         while((return_val=waitpid(-1,&flag,WNOHANG))>0){
+            int printer_index=printer_from_pid(return_val);
+            int job_index=job_from_pid(return_val);
             if(WIFEXITED(flag)){
-                int job_index=job_from_pid(return_val);
-                int printer_index=printer_from_pid(return_val);
-                printf("%i %i\n",job_index,printer_index);
                 if(WEXITSTATUS(flag)==0){
-                    if(job_index!=-1 && printer_index!=-1){
-                        sf_job_finished(job_array[job_index]->id,JOB_FINISHED);
-                        sf_job_status(job_index,JOB_FINISHED);
+                    if(printer_index!=-1 && job_index!=-1){
                         job_array[job_index]->status=JOB_FINISHED;
-                        sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
                         printer_array[printer_index]->status=PRINTER_IDLE;
+                        update_job_status(JOB_FINISHED,job_index);
+                        update_printer_status(PRINTER_IDLE,printer_array[printer_index]->name);
+                        sf_job_finished(job_array[job_index]->id,JOB_FINISHED);
+                        sf_job_status(job_array[job_index]->id,JOB_FINISHED);
+                        sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
+                        clock_t now=clock();
+                        while(1){
+                            if(clock()-now>=10){
+                                break;
+                            }
+                        }
+                        sf_job_deleted(job_array[job_index]->id);
+                        sf_job_status(job_array[job_index]->id,JOB_DELETED);
+                        update_job_status(JOB_DELETED,job_index);
+                        job_array[job_index]=NULL;
                     }
+                }
                 }else{
-                    if(job_index!=-1 && printer_index!=-1){
-                        sf_job_aborted(job_array[job_index]->id,JOB_ABORTED);
-                        sf_job_status(job_index,JOB_ABORTED);
+                    if(printer_index!=-1 && job_index!=-1){
                         job_array[job_index]->status=JOB_ABORTED;
-                        sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
                         printer_array[printer_index]->status=PRINTER_IDLE;
+                        update_job_status(JOB_ABORTED,job_index);
+                        update_printer_status(PRINTER_IDLE,printer_array[printer_index]->name);
+                        sf_job_aborted(job_array[job_index]->id,JOB_ABORTED);
+                        sf_job_status(job_array[job_index]->id,JOB_ABORTED);
+                        sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
+                        clock_t now=clock();
+                        while(1){
+                            if(clock()-now>=10){
+                                break;
+                            }
+                        }
+                        sf_job_deleted(job_array[job_index]->id);
+                        sf_job_status(job_array[job_index]->id,JOB_DELETED);
+                        update_job_status(JOB_DELETED,job_index);
+                        job_array[job_index]=NULL;
                     }
                 }
-                if(job_index!=-1){
-                    time_t curr_time=clock();
-                    while(clock()-curr_time<=10){}
-                    sf_job_status(job_index,JOB_DELETED);
-                    sf_job_deleted(job_array[job_index]->id);
-                    job_array[job_index]=NULL;
-                }
+            if(WIFSTOPPED(flag)){
+
+            }
+            if(WIFCONTINUED(flag)){
+
             }
         }
     }
@@ -642,8 +669,6 @@ int conversion_pipeline(PRINTER *printer,JOB* job){
             perror("Couldn't process group");
         }
         if(pid==0){
-            job_pid_arr[job->id]=getpid();
-            printer_pid_arr[printer->id]=getpid();
             if(conversion==NULL && strcmp(from,to)==0){
                 int jfd=open(job->file,O_RDONLY);
                 int pfd=imp_connect_to_printer(printer->name,printer->type,PRINTER_NORMAL);
@@ -654,6 +679,8 @@ int conversion_pipeline(PRINTER *printer,JOB* job){
                     perror("Couldn't execute");
                     return -1;
                 }
+                close(jfd);
+                close(pfd);
                 exit(EXIT_SUCCESS);
             }
             int pipefd[2*(conversion_length)];
@@ -717,6 +744,9 @@ int conversion_pipeline(PRINTER *printer,JOB* job){
                 }
             }
             exit(EXIT_SUCCESS);
+        }else{
+            job->pid=pid;
+            printer->pid=pid;
         }
     return 0;
 }
