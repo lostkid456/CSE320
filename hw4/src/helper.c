@@ -17,6 +17,9 @@
 
 int parse_inp(FILE *in,FILE *out,char* args){
     job_flag=0;
+    if(args==NULL){
+        return 0;
+    }
     char *args_token=strtok(args," ");
     if(args_token==NULL){
         free(args);  
@@ -48,6 +51,8 @@ int parse_inp(FILE *in,FILE *out,char* args){
             return 1;
         }
         free(args);
+        int fl=0;
+        while(waitpid(-1,&fl,WNOHANG)>0){}
         for(int i=0;i<MAX_PRINTERS;i++){
             if(printer_array[i]!=NULL){
                 free(printer_array[i]->name);
@@ -331,6 +336,9 @@ int parse_inp(FILE *in,FILE *out,char* args){
                 sf_cmd_error("Invalid number of args");
                 return 1;
             }
+            if(job_array[job_number]->status==JOB_PAUSED){
+                killpg(job_array[job_number]->pid,SIGCONT);
+            }
             if(job_array[job_number]->status==JOB_RUNNING){
                 killpg(job_array[job_number]->pid,SIGTERM);
                 sf_job_status(job_array[job_number]->id,JOB_ABORTED);
@@ -338,7 +346,8 @@ int parse_inp(FILE *in,FILE *out,char* args){
                 job_array[job_number]->status=JOB_ABORTED;
                 free(args);
                 sf_cmd_ok();
-            }else{
+            }
+            else{
                 fprintf(out,"This job is not running. No need to cancel");
                 free(args);
                 sf_cmd_ok();
@@ -393,7 +402,7 @@ int parse_inp(FILE *in,FILE *out,char* args){
             }else{
                 fprintf(out,"This job is not stopped. No need to resume");
                 free(args);
-                sf_cmd_ok();
+                sf_cmd_error("operation can't be done");
             } 
         }else{
             free(args);
@@ -412,13 +421,11 @@ int parse_inp(FILE *in,FILE *out,char* args){
             }
             int index=find_printer_index(printer_name); 
             if(index!=-1){
-                if(printer_array[index]->status==PRINTER_BUSY){
-                    killpg(printer_array[index]->pid,SIGSTOP);
-                    sf_printer_status(printer_array[index]->name,PRINTER_DISABLED);
-                    update_printer_status(PRINTER_DISABLED,printer_array[index]->name);
-                    free(args);
-                    sf_cmd_ok();
-                }
+                sf_printer_status(printer_array[index]->name,PRINTER_DISABLED);
+                update_printer_status(PRINTER_DISABLED,printer_array[index]->name);
+                printer_array[index]->status=PRINTER_DISABLED;
+                free(args);
+                sf_cmd_ok();
             }else{
                 free(args);
                 fprintf(out,"Printer cannot be found");
@@ -618,10 +625,47 @@ void sig_handler_parent(){
                     }
                 }
             if(WIFSTOPPED(flag)){
-
+                if(job_index!=-1){
+                    job_array[job_index]->status=JOB_PAUSED;
+                    printer_array[printer_index]->status=PRINTER_IDLE;
+                    update_job_status(JOB_PAUSED,job_index);
+                    update_printer_status(PRINTER_IDLE,printer_array[printer_index]->name);
+                    sf_job_status(job_array[job_index]->id,JOB_ABORTED);
+                    sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
+                    sf_cmd_ok();
+                }
             }
             if(WIFCONTINUED(flag)){
-
+                if(job_index!=-1){
+                    job_array[job_index]->status=JOB_RUNNING;
+                    printer_array[printer_index]->status=PRINTER_BUSY;
+                    update_job_status(JOB_RUNNING,job_index);
+                    update_printer_status(PRINTER_BUSY,printer_array[printer_index]->name);
+                    sf_job_status(job_array[job_index]->id,JOB_RUNNING);
+                    sf_printer_status(printer_array[printer_index]->name,PRINTER_BUSY);
+                    sf_cmd_ok();
+                }
+            }
+            if(WIFSIGNALED(flag)){
+                if(printer_index!=-1 && job_index!=-1){
+                    job_array[job_index]->status=JOB_ABORTED;
+                    printer_array[printer_index]->status=PRINTER_IDLE;
+                    update_job_status(JOB_ABORTED,job_index);
+                    update_printer_status(PRINTER_IDLE,printer_array[printer_index]->name);
+                    sf_job_aborted(job_array[job_index]->id,JOB_ABORTED);
+                    sf_job_status(job_array[job_index]->id,JOB_ABORTED);
+                    sf_printer_status(printer_array[printer_index]->name,PRINTER_IDLE);
+                    clock_t now=clock();
+                    while(1){
+                        if(clock()-now>=10){
+                            break;
+                        }
+                    }
+                    sf_job_deleted(job_array[job_index]->id);
+                    sf_job_status(job_array[job_index]->id,JOB_DELETED);
+                    update_job_status(JOB_DELETED,job_index);
+                    job_array[job_index]=NULL;
+                }
             }
         }
     }
@@ -636,7 +680,7 @@ int conversion_pipeline(PRINTER *printer,JOB* job){
         char* from=job->type;
         char* to=printer->type;
         CONVERSION **conversion=find_conversion_path(from,to);
-        if(conversion==NULL&& strcmp(from,to)){
+        if(conversion==NULL && strcmp(from,to)){
             perror("No path");
             return -1;
         } 
@@ -669,19 +713,18 @@ int conversion_pipeline(PRINTER *printer,JOB* job){
             perror("Couldn't process group");
         }
         if(pid==0){
-            if(conversion==NULL && strcmp(from,to)==0){
+            if(strcmp(from,to)==0){
                 int jfd=open(job->file,O_RDONLY);
                 int pfd=imp_connect_to_printer(printer->name,printer->type,PRINTER_NORMAL);
                 dup2(jfd,STDIN_FILENO);
                 dup2(pfd,STDOUT_FILENO);
-                char *arg[]={"cat","/bin/cat",NULL};
+                close(jfd);
+                close(pfd);
+                char *arg[]={"cat",NULL};
                 if(execvp(arg[0],arg)==-1){
                     perror("Couldn't execute");
                     return -1;
                 }
-                close(jfd);
-                close(pfd);
-                exit(EXIT_SUCCESS);
             }
             int pipefd[2*(conversion_length)];
             for(int i=0;conversion[i]!=NULL;i++){
