@@ -1,7 +1,9 @@
 Johnathan Zhao
 112892137
-:satisfied:
+😆
 Eugene StarK - Section 1
+
+
 ACADEMIC HONESTY STATEMENT
 ================================================================================
 I certify the following:
@@ -37,5 +39,4 @@ materials, I will obtain written permission from the Professor(s), in advance of
 my submission. Such permission is best requested and obtained by E-mail to
 cse320@cs.stonybrook.edu
 ================================================================================
-Signed:
-Mon 01 Feb 2021 07:49:02 PM UTC - Johnathan Zhao
+Signed: Mon 01 Feb 2021 07:49:02 PM UTC - Johnathan Zhao
