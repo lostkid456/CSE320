@@ -1,0 +1,47 @@
+Graded Commit:6ec9fde246fa218dfbec76831594a502214d63b9
+
+TEST NAME, POINTS,OUT OF
+sf_memsuite_grading/free_block_too_small,1,1,
+sf_memsuite_grading/free_null,1,1,
+sf_memsuite_grading/free_prev_alloc,0,1,1 assertion(s) failed.: tests/grading_tests.c:1090: SIGABRT should have been received
+sf_memsuite_grading/free_unallocated,1,1,
+sf_memsuite_grading/initialization,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f0a29ce0058 is not contained in the free list
+sf_memsuite_grading/malloc_free_coalesce_both,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7fe2ce1855e8 is not contained in the free list
+sf_memsuite_grading/malloc_free_coalesce_lower,0,1,1 assertion(s) failed.: tests/grading_tests.c:105: Prev allocated bit is not correctly set for 0x7f18df4f4108. Should be: 1
+sf_memsuite_grading/malloc_free_coalesce_upper,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f3586d535e8 is not contained in the free list
+sf_memsuite_grading/malloc_free_first_block,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f056a64f248 is not contained in the free list
+sf_memsuite_grading/malloc_free_last_block,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f9a94b0d108 is not contained in the free list
+sf_memsuite_grading/malloc_free_lifo,1,1,
+sf_memsuite_grading/malloc_free_no_coalesce,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7fd4c49133e8 is not contained in the free list
+sf_memsuite_grading/malloc_to_exhaustion,0,1,1 assertion(s) failed.: tests/grading_tests.c:105: Prev allocated bit is not correctly set for 0x7f59d6919ff8. Should be: 1
+sf_memsuite_grading/malloc_with_splinter,0,1,"1 assertion(s) failed.: tests/grading_tests.c:164: Block 0x7f8272516038 has wrong block_size (got 8128, expected 8144)"
+sf_memsuite_grading/realloc_larger,1,1,
+sf_memsuite_grading/realloc_same,1,1,
+sf_memsuite_grading/realloc_size_0,1,1,
+sf_memsuite_grading/realloc_smaller,1,1,
+sf_memsuite_grading/realloc_splinter,1,1,
+sf_memsuite_grading/sf_memalign_test_1,1,1,
+sf_memsuite_grading/sf_memalign_test_2,1,1,
+sf_memsuite_grading/sf_memalign_test_3,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f7c01680108 is not contained in the free list
+sf_memsuite_grading/single_malloc_1,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7fd0e6bf1058 is not contained in the free list
+sf_memsuite_grading/single_malloc_16,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f14afcba058 is not contained in the free list
+sf_memsuite_grading/single_malloc_32,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f43065e2068 is not contained in the free list
+sf_memsuite_grading/single_malloc_exactly_one_page_needed,1,1,
+sf_memsuite_grading/single_malloc_max,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f308c2cf038 is not contained in the free list
+sf_memsuite_grading/single_malloc_more_than_one_page_needed,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7fad71f12038 is not contained in the free list
+sf_memsuite_grading/single_malloc_three_pages_needed,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7f1f16232e08 is not contained in the free list
+sf_memsuite_grading/stress_test,0,1,1 assertion(s) failed.: tests/grading_tests.c:122: Free block at 0x7fbd9b286038 is not contained in the free list
+sfmm_basecode_suite/free_coalesce,1,1,
+sfmm_basecode_suite/free_no_coalesce,1,1,
+sfmm_basecode_suite/freelist,1,1,
+sfmm_basecode_suite/malloc_an_int,1,1,
+sfmm_basecode_suite/malloc_four_pages,1,1,
+sfmm_basecode_suite/malloc_too_large,1,1,
+sfmm_basecode_suite/realloc_larger_block,1,1,
+sfmm_basecode_suite/realloc_smaller_block_free_block,1,1,
+sfmm_basecode_suite/realloc_smaller_block_splinter,1,1,
+total,21,39extra_test1,0.6,0.6
+extra_test2,0.6,0.6
+extra_test3,0.6,0.6
+extra_test4,0.6,0.6
+extra_test5,0.6,0.6
