@@ -13,7 +13,12 @@
 #include "server.h"
 #include "globals.h"
 
+#include "csapp.h"
+#include "helper.h"
+
 static void terminate(int);
+
+void sighup_handler(int);
 
 /*
  * "Charla" chat server.
@@ -24,6 +29,40 @@ int main(int argc, char* argv[]){
     // Option processing should be performed here.
     // Option '-p <port>' is required in order to specify the port number
     // on which the server should listen.
+
+    //Counter to keep track if -p is found
+    int p_counter=0;
+
+    //port for -p 
+    char* port;
+
+    //used for getopt
+    int option;
+
+    //Descriptors for connection between server and client
+    int listen_fd,*conn_fd;
+    socklen_t clients;
+    struct sockaddr_in cliaddr;
+    pthread_t tid; 
+
+    while( (option=getopt(argc,argv,"p:") )!=-1){
+        switch(option){
+            case 'p':
+                port=optarg;
+                p_counter++;
+                break;
+            default:
+                printf("Unknown/Missing Option\n");
+                break;
+        }
+    }
+
+    if(!(p_counter)){
+        fprintf(stderr,"-p not found\n");
+        return -1;
+    }
+
+
 
     // Perform required initializations of the client_registry and
     // player_registry.
@@ -36,10 +75,19 @@ int main(int argc, char* argv[]){
     // a SIGHUP handler, so that receipt of SIGHUP will perform a clean
     // shutdown of the server.
 
-    fprintf(stderr, "You have to finish implementing main() "
-	    "before the server will function.\n");
+    listen_fd=Open_listenfd(port);
 
-    terminate(EXIT_FAILURE);
+    signal(SIGHUP,sighup_handler);
+    while(1){
+        clients=sizeof(struct sockaddr_storage);
+        conn_fd=malloc(sizeof(int));
+        *conn_fd=Accept(listen_fd,(SA*)&cliaddr,&clients);
+        pthread_create(&tid,NULL,chla_client_service,conn_fd);
+    }
+}
+
+void sighup_handler(int signal){
+    terminate(EXIT_SUCCESS);
 }
 
 /*
