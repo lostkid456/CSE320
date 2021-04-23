@@ -10,33 +10,46 @@
 #include "protocol.h"
 
 int proto_send_packet(int fd, CHLA_PACKET_HEADER *hdr, void *payload){
-    hdr->type=ntohl(hdr->type);
-    hdr->payload_length=htonl(hdr->payload_length);
-    hdr->msgid=htonl(hdr->msgid);
-    hdr->timestamp_sec=htonl(hdr->timestamp_sec);
-    hdr->timestamp_nsec=htonl(hdr->timestamp_nsec);
-    if(write(fd,hdr,sizeof(hdr))!=-1){
+    size_t packet_len=ntohl(hdr->payload_length);
+    if(write(fd,hdr,sizeof(*hdr))==sizeof(*hdr)){
         if(payload!=NULL){
-            if(write(fd,payload,hdr->payload_length)!=-1){
+            if(write(fd,payload,packet_len)==packet_len){
                 return 0;
             }else{
+                errno=EIO;
                 return -1;
             }
         }
         return 0;
     }
+    errno=EIO;
     return -1;
 }
 
 int proto_recv_packet(int fd, CHLA_PACKET_HEADER *hdr, void **payload){
-    if(read(fd,hdr,sizeof(hdr))!=-1){
-        if(htonl(hdr->payload_length)>0){
-            if(read(fd,payload,htonl(hdr->payload_length))!=-1){
-                return 0;
-            }else{
+    //memset(hdr,0,sizeof(*hdr));
+    size_t packet_len;
+    if(read(fd,hdr,sizeof(*hdr))==sizeof(*hdr)){
+        packet_len=ntohl(hdr->payload_length);
+        char* hold_payload=malloc(packet_len);
+        char* temp_payload=hold_payload;
+        int counter=packet_len;
+        while(counter){
+            size_t rv=read(fd,temp_payload,counter);
+            if(rv<0 || rv==0){
+                free(hold_payload);
                 return -1;
             }
+            counter-=rv;
+            temp_payload+=counter;
         }
+        if(payload!=NULL){
+            *payload=hold_payload;
+        }else{
+            free(hold_payload);
+        }
+        return 0;
     }
+    errno=EIO;
     return -1;
 }
