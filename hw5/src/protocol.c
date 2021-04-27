@@ -16,13 +16,11 @@ int proto_send_packet(int fd, CHLA_PACKET_HEADER *hdr, void *payload){
             if(write(fd,payload,packet_len)==packet_len){
                 return 0;
             }else{
-                errno=EIO;
                 return -1;
             }
         }
         return 0;
     }
-    errno=EIO;
     return -1;
 }
 
@@ -41,7 +39,8 @@ int proto_recv_packet(int fd, CHLA_PACKET_HEADER *hdr, void **payload){
                 return -1;
             }
             counter-=rv;
-            temp_payload+=counter;
+            temp_payload+=rv;
+            //temp_payload+=counter;
         }
         if(payload!=NULL){
             *payload=hold_payload;
@@ -50,6 +49,5 @@ int proto_recv_packet(int fd, CHLA_PACKET_HEADER *hdr, void **payload){
         }
         return 0;
     }
-    errno=EIO;
     return -1;
 }
