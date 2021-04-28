@@ -5,8 +5,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <errno.h>
-
 #include "protocol.h"
 
 int proto_send_packet(int fd, CHLA_PACKET_HEADER *hdr, void *payload){

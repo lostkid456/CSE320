@@ -38,7 +38,9 @@ void user_unref(USER *user, char *why){
     user->why=why;
     if(user->reference_count==0){
         free(user->handle);
+        sem_post(&user->mutex);
         free(user);
+        return;
     }
     sem_post(&user->mutex);
 }

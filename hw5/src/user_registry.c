@@ -3,6 +3,7 @@
 #include <string.h>
 #include <semaphore.h>
 
+#include "debug.h"
 #include "user_registry.h"
 #include "user.h"
 
@@ -18,6 +19,7 @@ USER_REGISTRY *ureg_init(void){
     user_registry->next=user_registry;
     user_registry->prev=user_registry;
     sem_init(&user_registry->mutex,0,1);
+    debug("Initalize user registry");
     return user_registry;
 }
 
@@ -25,13 +27,11 @@ void ureg_fini(USER_REGISTRY *ureg){
     sem_wait(&ureg->mutex);
     USER_REGISTRY *head=ureg->next;
     while(head!=ureg){
-        USER_REGISTRY *temp=head;
+        free(head->user);
         head=head->next;
-        free(temp);
     }
-    free(head);
     sem_post(&ureg->mutex);
-    free(ureg);
+    free(head);
 }
 
 USER *ureg_register(USER_REGISTRY *ureg, char *handle){
@@ -66,7 +66,9 @@ void ureg_unregister(USER_REGISTRY *ureg, char *handle){
             if(head->user==NULL){
                 head->prev->next=head->next;
                 head->next->prev=head->prev;
+                sem_post(&ureg->mutex);
                 free(head);
+                return;
             }
         }
     }

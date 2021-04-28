@@ -87,6 +87,7 @@ int main(int argc, char* argv[]){
 }
 
 void sighup_handler(int signal){
+    //exit(0);
     terminate(EXIT_SUCCESS);
 }
 
