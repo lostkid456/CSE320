@@ -8,9 +8,9 @@
 #include <sys/time.h>
 
 #include "user.h"
-//#include "client.h"
 #include "client_registry.h"
 #include "globals.h"
+#include "client.h"
 
 typedef struct client{
     int fd;
@@ -23,6 +23,9 @@ typedef struct client{
 
 CLIENT *client_create(CLIENT_REGISTRY *creg, int fd){
     CLIENT *new_client=calloc(1,sizeof(CLIENT));
+    if(new_client==NULL){
+        return NULL;
+    }
     new_client->fd=fd;
     new_client->ref_count=1;
     new_client->log_in=0;
@@ -49,20 +52,21 @@ void client_unref(CLIENT *client, char *why){
 }
 
 int client_login(CLIENT *client, char *handle){
-    sem_wait(&client->mutex);
     if(client->log_in==1){
-        sem_post(&client->mutex);
         return -1;
     }
-    // CLIENT **all_clients=creg_all_clients(client_registry);
-    // for(int i=0;i<MAX_CLIENTS;i++){
-    //     if(all_clients[i]!=NULL){
-    //         if(strcmp(user_get_handle(all_clients[i]->user),handle)==0){
-    //             sem_post(&client->mutex);
-    //             return -1;
-    //         }
-    //     }
-    // }
+    CLIENT **all_clients=creg_all_clients(client_registry);
+    sem_wait(&client->mutex);
+    for(int i=0;i<MAX_CLIENTS;i++){
+        if((all_clients[i]->user)!=NULL){
+            if(strcmp(user_get_handle(all_clients[i]->user),handle)==0){
+                sem_post(&client->mutex);
+                return -1;
+            }
+        }
+        break;
+    }
+    free(all_clients);
     client->user=ureg_register(user_registry,handle);
     client->mailbox=mb_init(handle);
     client->log_in=1;
@@ -121,7 +125,7 @@ int client_send_packet(CLIENT *user, CHLA_PACKET_HEADER *pkt, void *data){
 int client_send_ack(CLIENT *client, uint32_t msgid, void *data, size_t datalen){
     struct timeval curr_time;
     gettimeofday(&curr_time,NULL);
-    CHLA_PACKET_HEADER *ack_pkt=malloc(sizeof(CHLA_PACKET_HEADER));
+    CHLA_PACKET_HEADER *ack_pkt=calloc(1,sizeof(CHLA_PACKET_HEADER));
     ack_pkt->payload_length=ntohl(datalen);
     ack_pkt->msgid=msgid;
     ack_pkt->type=CHLA_ACK_PKT;
@@ -137,7 +141,7 @@ int client_send_ack(CLIENT *client, uint32_t msgid, void *data, size_t datalen){
 int client_send_nack(CLIENT *client, uint32_t msgid){
     struct timeval curr_time;
     gettimeofday(&curr_time,NULL);
-    CHLA_PACKET_HEADER *nack_pkt=malloc(sizeof(CHLA_PACKET_HEADER));
+    CHLA_PACKET_HEADER *nack_pkt=calloc(1,sizeof(CHLA_PACKET_HEADER));
     nack_pkt->type=CHLA_NACK_PKT;
     nack_pkt->msgid=msgid;
     nack_pkt->payload_length=0;

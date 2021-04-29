@@ -16,8 +16,11 @@ typedef struct user{
 
 USER *user_create(char *handle){
     USER *new_user=malloc(sizeof(USER));
+    if(new_user==NULL){
+        return NULL;
+    }
     sem_init(&new_user->mutex,0,1);
-    new_user->handle=malloc(sizeof(char));
+    new_user->handle=malloc(sizeof(char*));
     strcpy(new_user->handle,handle);
     new_user->reference_count=1;
     new_user->why=NULL;

@@ -14,7 +14,6 @@
 #include "globals.h"
 
 #include "csapp.h"
-#include "helper.h"
 
 static void terminate(int);
 
