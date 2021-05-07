@@ -19,6 +19,12 @@ static void terminate(int);
 
 void sighup_handler(int);
 
+int create_thread(pthread_t *tid,int fd);
+
+pthread_t tid; 
+
+// static pthread_t tids[MAX_CLIENTS];
+
 /*
  * "Charla" chat server.
  *
@@ -39,10 +45,9 @@ int main(int argc, char* argv[]){
     int option;
 
     //Descriptors for connection between server and client
-    int listen_fd,*conn_fd;
+    int listen_fd;
     socklen_t clients;
     struct sockaddr_in cliaddr;
-    pthread_t tid; 
 
     while( (option=getopt(argc,argv,"p:") )!=-1){
         switch(option){
@@ -76,17 +81,29 @@ int main(int argc, char* argv[]){
 
     listen_fd=Open_listenfd(port);
 
-    signal(SIGHUP,sighup_handler);
+    struct sigaction action;
+    action.sa_handler=sighup_handler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags=SA_SIGINFO;
+    sigaction(SIGHUP,&action,NULL);
+
+    int conn_fd;
+
     while(1){
         clients=sizeof(struct sockaddr_storage);
-        conn_fd=malloc(sizeof(int));
-        *conn_fd=Accept(listen_fd,(SA*)&cliaddr,&clients);
-        pthread_create(&tid,NULL,chla_client_service,conn_fd);
+        conn_fd=Accept(listen_fd,(SA*)&cliaddr,&clients);
+        create_thread(&tid,conn_fd);
+        pthread_detach(tid);
     }
 }
 
+int create_thread(pthread_t *tid,int fd){
+    int *copy_fd=malloc(sizeof(int));
+    *copy_fd=fd;
+    return pthread_create(tid,NULL,chla_client_service,copy_fd);
+}
+
 void sighup_handler(int signal){
-    //exit(0);
     terminate(EXIT_SUCCESS);
 }
 
@@ -97,7 +114,7 @@ static void terminate(int status) {
     // Shut down all existing client connections.
     // This will trigger the eventual termination of service threads.
     creg_shutdown_all(client_registry);
-
+    // pthread_join(tid,NULL);
     // Finalize modules.
     creg_fini(client_registry);
     ureg_fini(user_registry);

@@ -30,20 +30,24 @@ void ureg_fini(USER_REGISTRY *ureg){
     sem_wait(&ureg->mutex);
     USER_REGISTRY *head=ureg->next;
     while(head!=ureg){
+        USER_REGISTRY *temp=head;
         free(user_get_handle(head->user));
         free(head->user);
         head=head->next;
+        free(temp);
     }
     sem_post(&ureg->mutex);
+    sem_destroy(&ureg->mutex);
     free(head);
+    debug("Finishing user registry");
 }
 
 USER *ureg_register(USER_REGISTRY *ureg, char *handle){
     if(ureg==NULL){
         return NULL;
     }
-    USER *user;
     sem_wait(&ureg->mutex);
+    USER *user;
     USER_REGISTRY *head=ureg->next;
     while(head!=ureg){
         if(strcmp(user_get_handle(head->user),handle)==0){
@@ -79,6 +83,7 @@ void ureg_unregister(USER_REGISTRY *ureg, char *handle){
                 head->prev->next=head->next;
                 head->next->prev=head->prev;
                 sem_post(&ureg->mutex);
+                sem_destroy(&ureg->mutex);
                 free(head);
                 return;
             }

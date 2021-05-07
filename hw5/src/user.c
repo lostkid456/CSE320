@@ -20,7 +20,7 @@ USER *user_create(char *handle){
         return NULL;
     }
     sem_init(&new_user->mutex,0,1);
-    new_user->handle=malloc(sizeof(char*));
+    new_user->handle=malloc(sizeof(strlen(handle)+1));
     strcpy(new_user->handle,handle);
     new_user->reference_count=1;
     new_user->why=NULL;
@@ -42,6 +42,7 @@ void user_unref(USER *user, char *why){
     if(user->reference_count==0){
         free(user->handle);
         sem_post(&user->mutex);
+        sem_destroy(&user->mutex);
         free(user);
         return;
     }
