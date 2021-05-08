@@ -1,3 +1,6 @@
+#ifndef HELPER_H
+#define HELPER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,4 +13,6 @@ typedef struct entry{
     ENTRY *prev;
     ENTRY *next;
 }ENTRY;
+
+#endif
 

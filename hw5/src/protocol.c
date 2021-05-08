@@ -23,11 +23,10 @@ int proto_send_packet(int fd, CHLA_PACKET_HEADER *hdr, void *payload){
 }
 
 int proto_recv_packet(int fd, CHLA_PACKET_HEADER *hdr, void **payload){
-    //memset(hdr,0,sizeof(*hdr));
     size_t packet_len;
     if(read(fd,hdr,sizeof(*hdr))==sizeof(*hdr)){
         packet_len=ntohl(hdr->payload_length);
-        char* hold_payload=malloc(packet_len);
+        char* hold_payload=calloc(1,packet_len+1);
         char* temp_payload=hold_payload;
         int counter=packet_len;
         while(counter){

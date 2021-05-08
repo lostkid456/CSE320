@@ -96,7 +96,7 @@ int client_logout(CLIENT *client){
     user_unref(client->user,"User reference decrease");
     client->user=NULL;
     mb_shutdown(client->mailbox);
-    mb_unref(client->mailbox,"Unref mailbox");
+    mb_unref(client->mailbox,"FINAL Unref mailbox");
     client->mailbox=NULL;
     client->log_in=0;
     debug("LOGGED OUT");

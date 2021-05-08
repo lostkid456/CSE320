@@ -88,7 +88,7 @@ void mb_add_message(MAILBOX *mb, int msgid, MAILBOX *from, void *body, int lengt
         mb_ref(from,"Increasing reference of sender");
     }
     sem_wait(&mb->mutex);
-    MAILBOX_ENTRY *new_mentry=malloc(sizeof(MAILBOX_ENTRY));
+    MAILBOX_ENTRY *new_mentry=calloc(1,sizeof(MAILBOX_ENTRY));
     new_mentry->type=MESSAGE_ENTRY_TYPE;
     new_mentry->content.message.body=body;
     new_mentry->content.message.from=from;
@@ -115,7 +115,7 @@ void mb_add_message(MAILBOX *mb, int msgid, MAILBOX *from, void *body, int lengt
 
 void mb_add_notice(MAILBOX *mb, NOTICE_TYPE ntype, int msgid){
     sem_wait(&mb->mutex);
-    MAILBOX_ENTRY *new_mentry=malloc(sizeof(MAILBOX_ENTRY));
+    MAILBOX_ENTRY *new_mentry=calloc(1,sizeof(MAILBOX_ENTRY));
     new_mentry->type=NOTICE_ENTRY_TYPE;
     new_mentry->content.notice.msgid=msgid;
     new_mentry->content.notice.type=ntype;
@@ -156,7 +156,7 @@ MAILBOX_ENTRY *mb_next_entry(MAILBOX *mb){
     }
     sem_post(&mb->mutex);
     if(entry->type==MESSAGE_ENTRY_TYPE){
-        mb_unref(mb,"ENTRY TYPE UNREF");
+        mb_unref(entry->content.message.from,"ENTRY TYPE UNREF");
     }
     return entry;
 }
