@@ -22,12 +22,11 @@ void *chla_client_service(void *arg){
     free(arg);
     CLIENT *new_client;
     CHLA_PACKET_HEADER *new_header;
-    char **args;
+    char **args=calloc(1,sizeof(char *));
     pthread_t mailbox_tid;
     if((new_client=creg_register(client_registry,connfd))!=NULL){
         while(1){
             new_header=calloc(1,sizeof(CHLA_PACKET_HEADER));
-            args=calloc(1,sizeof(char *));
             if(proto_recv_packet(connfd,new_header,(void **)args)<0){
                 break;
             }
@@ -51,6 +50,8 @@ void *chla_client_service(void *arg){
             }else if((new_header->type)==CHLA_USERS_PKT){
                 CLIENT **clients=creg_all_clients(client_registry);
                 char* logged_user=calloc(1,sizeof(char*));
+                char* user_handle=calloc(1,sizeof(char*));
+                int counter=0;
                 for(int i=0;i<MAX_CLIENTS;i++){
                     if(clients[i]==NULL){
                         break;
@@ -58,20 +59,22 @@ void *chla_client_service(void *arg){
                     client_unref(clients[i],"Dereference after use from creg_all for USERS");
                     USER *user;
                     if((user=client_get_user(clients[i],0))!=NULL){
-                        char* user_handle=calloc(1,strlen(user_get_handle(user)));
-                        user_handle=user_get_handle(user);
+                        user_handle=realloc(user_handle,strlen(user_get_handle(user))+1);
+                        memcpy(user_handle,user_get_handle(user),strlen(user_get_handle(user))+1);
                         logged_user=realloc(logged_user,(strlen(logged_user)+strlen(user_handle)+3));
                         strcat(logged_user,user_handle);
                         strcat(logged_user,"\r\n");
                         strcat(logged_user,"\0");
+                        counter+=1;
                     }
                 }
                 free(clients);
-                if(logged_user==NULL){
+                if(counter==0){
                     client_send_ack(new_client,ntohl(new_header->msgid),NULL,0);
                 }else{
                     client_send_ack(new_client,ntohl(new_header->msgid),logged_user,strlen(logged_user)+1);
                     free(logged_user);
+                    free(user_handle);
                 }
             }else if((new_header->type)==CHLA_SEND_PKT){
                 strcat(*args,"\0");
@@ -84,6 +87,9 @@ void *chla_client_service(void *arg){
                 strcat(handle,"\0");
                 int counter=0;
                 for(int i=0;i<MAX_CLIENTS;i++){
+                    if(clients[i]==NULL){
+                        break;
+                    }
                     client_unref(clients[i],"Dereference after use from creg_all for USERS");
                     USER *user;
                     if((user=client_get_user(clients[i],0))!=NULL){
@@ -103,7 +109,6 @@ void *chla_client_service(void *arg){
                             client_send_ack(new_client,ntohl(new_header->msgid),NULL,0);
                             counter+=1;
                             free(message);
-                            break;
                         }
                     }
                 }

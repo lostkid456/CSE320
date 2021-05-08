@@ -181,6 +181,7 @@ int client_send_ack(CLIENT *client, uint32_t msgid, void *data, size_t datalen){
         free(ack_pkt);
         return -1;
     }
+    free(ack_pkt);
     return 0;
 }
 
@@ -197,5 +198,6 @@ int client_send_nack(CLIENT *client, uint32_t msgid){
         free(nack_pkt);
         return -1;
     }
+    free(nack_pkt);
     return 0;
 }
