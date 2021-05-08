@@ -22,6 +22,7 @@ USER *user_create(char *handle){
     sem_init(&new_user->mutex,0,1);
     new_user->handle=malloc(sizeof(strlen(handle)+1));
     strcpy(new_user->handle,handle);
+    strcat(new_user->handle,"\0");
     new_user->reference_count=1;
     new_user->why=NULL;
     return new_user;
